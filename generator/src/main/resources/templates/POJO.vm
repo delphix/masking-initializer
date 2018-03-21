@@ -1,0 +1,17 @@
+package com.delphix.masking.initializer.pojo;
+
+import java.util.List;
+import lombok.Data;
+
+@Data
+public class $ClassName {
+
+#foreach( $memberVariable in $memberVariables )
+  #if ($memberVariable.listType)
+    private List<$memberVariable.listType> ${memberVariable.name};
+  #else
+    private $memberVariable.type $memberVariable.name;
+  #end
+#end
+
+}

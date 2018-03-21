@@ -1,0 +1,57 @@
+group 'com.delphix.masking.endpointCodeGen'
+version '0.0.1'
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    classFiles {
+        transitive = false
+    }
+    jarOut {
+        transitive = false
+    }
+}
+
+dependencies {
+
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+    compileOnly "org.projectlombok:lombok:1.16.16"
+
+}
+
+mainClassName = 'com.delphix.masking.endpointCodeGen.main'
+
+
+def srcFiles
+task generateSrc() {
+    srcFiles = file("build/src/main/java/")
+}
+generateSrc.dependsOn run
+
+task generateJar(type: Jar) {
+    from srcFiles
+}
+generateJar.dependsOn generateSrc
+artifacts {
+    classFiles srcFiles
+    jarOut generateJar
+}
+
+//sourceSets {
+//    main {
+//        java {
+//            srcDir file("build/src/main/java/")
+//        }
+//    }
+//}

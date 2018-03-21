@@ -1,0 +1,50 @@
+package com.delphix.masking.initializer.maskingApi.endpointCaller;
+
+import com.delphix.masking.initializer.Constants;
+import com.delphix.masking.initializer.Utils;
+import com.delphix.masking.initializer.pojo.${ClassName};
+import com.delphix.masking.initializer.pojo.${ClassName}List;
+
+import java.util.ArrayList;
+import lombok.Setter;
+
+public class Get${ClassName}s extends GetApiCall {
+
+    private static final String GET_${CLASS_NAME}_PATH = "${endpointPath}";
+    private ${ClassName}List ${className}List;
+    private ArrayList ${className}Array;
+
+    #foreach( $queryParam in $queryParams )
+      @Setter $queryParam.type $queryParam.name;
+    #end
+
+    @Override
+    protected void setResponse(String responseBody) {
+        if (${className}Array == null) {
+           ${className}Array = new ArrayList<>();
+        }
+
+        ${className}List = Utils.getClassFromJson(responseBody, ${ClassName}List.class);
+        ${className}Array.addAll(${className}List.getResponseList());
+        currentSize = ${className}Array.size();
+        if (total == null) {
+            total = ${className}List.getPageInfo().getTotal();
+        }
+
+    }
+
+    @Override
+    protected String getEndpoint(int pageNumber) {
+        String path = GET_${CLASS_NAME}_PATH + "?page_size=" + Constants.PAGE_SIZE + "&&page_number=" + pageNumber;
+        #foreach( $queryParam in $queryParams )
+          if (${queryParam.name} != null) {
+            path += "&&${queryParam.name}=" + ${queryParam.name};
+          }
+        #end
+        return path;
+    }
+
+    public ArrayList<${ClassName}> get${ClassName}s() {
+        return ${className}Array;
+    }
+}

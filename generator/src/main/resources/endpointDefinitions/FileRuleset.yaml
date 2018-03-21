@@ -1,0 +1,23 @@
+className: [file, Ruleset]
+endpointPath: file-rulesets
+nameField: RulesetName
+idField: FileRulesetId
+generatePut: false
+memberVariables:
+  - name: fileRulesetId
+    type: Integer
+  - name: rulesetName
+    type: String
+  - name: fileConnectorId
+    type: Integer
+  - name: environmentId
+    type: Integer
+  - name: fileMetadatas
+    type: List
+    listType: FileMetadata
+  - name: maskingJobs
+    type: List
+    listType: MaskingJob
+  - name: profilingJobs
+    type: List
+    listType: ProfilingJob

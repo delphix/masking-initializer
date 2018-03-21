@@ -1,0 +1,45 @@
+host: <masking-engine-host> # this can be a url or just localhost
+username: <masking-engine-username> # generally Axistech or delphix_admin
+password: <masking-engine-user-password> # Axis_123/Delphix_123
+port: <masking-engine-port> # Normally 8282
+applications:
+- applicationName: <name-of-application> # normally just app
+  environments:
+  - environmentName: <name-of-environment> # normally just env
+    purpose: <masking-environment-purpose> # normally just MASK, can also be TOKENIZE
+    databaseConnectors:
+    - connectorName: <connector-name> # This can be anything
+      databaseType: <database-type> # normally ORACLE/MSSQL/SYABE...
+      host: <host-of-database> # for example oradb.dc2.delphix.com
+      port: <port-of-database> # 1521 or oracle, 1433 for mssql, 5432 for postgres...
+      schemaName: <schema-name-for-oracle> # BLACKBOX (should be all caps)
+      sid: <sid-for-oracle> # example dbdhcp3
+      username: <database-username> # example BLACKBOX
+      password: <database-password> # example blackbox
+      databaseRulesets:
+      - rulesetName: <ruleset-name> # example ruleset1
+        tableMetadatas:
+        - tableName: <table-name> # this table name should exist in whichever connector you specified above
+          columnMetadatas:
+          - {algorithmName: <name-of-maksing-alog>, domainName: <name-of-masking-domain, columnName: <database-column-name>}
+        maskingJobs:
+        - jobName: <name-of-masking-job> #This masking job will be set by default to the ruleset it is a child of
+    fileConnectors:
+    - connectionInfo: {connectionMode: SFTP, host: <sftp-server-host, loginName: <sftp-server-login>,
+        password: <sftp-server-password>, path: <sftp-server-path, port: 22, password: <sftp-server-password>}
+      connectorName: <delimited-file-connector-name> # example delmFileConn
+      fileType: <file-type> # Right now must be one of DELIMITED, EXCEL, FIXED_WIDTH, XML
+      fileRulesets:
+      - rulesetName: <name-of-ruleset> # example delmSftpRulseset
+        fileMetadatas:
+        - fileName: <name-of-file> # If nameIsRegularExpression below is true this can also be a reegular expression
+          fileFormatId: <file-format-id> # The id of the already uploaded file format
+          endOfRecord: # for linux this is '\\n', and for windows it is '\\r\\n'
+          delimiter: '*'
+          nameIsRegularExpression: <true/false> # true if the file name is actually a regular expression
+        maskingJobs:
+        - jobName: <name-of-file-masking-job> # example delmSftpMaskingJob
+        # profiling jobs may not work as they have not been fully tested
+        profilingJobs:
+        - jobName: <name-of-file-profile-job> # example delmSftpProfileJob
+          profileSetId: <id-of-profiler-set> # 1 and 2 correspond to Financial and HIPAA respectively

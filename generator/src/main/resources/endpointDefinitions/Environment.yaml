@@ -1,0 +1,21 @@
+className: [environment]
+endpointPath: environments
+nameField: EnvironmentName
+idField: EnvironmentId
+memberVariables:
+  - name: environmentName
+    type: String
+  - name: isWorkflowEnabled
+    type: Boolean
+  - name: environmentId
+    type: Integer
+  - name: application
+    type: String
+  - name: purpose
+    type: String
+  - name: databaseConnectors
+    type: List
+    listType: DatabaseConnector
+  - name: fileConnectors
+    type: List
+    listType: FileConnector

@@ -1,0 +1,29 @@
+# NOTE the database may no longer exist
+host: localhost
+username: Axistech
+password: Axis_123
+port: 8282
+apiPath: masking
+applications:
+- applicationName: app
+  environments:
+  - environmentName: env
+    purpose: MASK
+    databaseConnectors:
+    - connectorName: mssql
+      databaseType: MSSQL
+      host: db.host.com
+      port: 1433
+      schemaName: dbo
+      databaseName: Gravy
+      username: sa
+      password: password
+      instanceName: MSSQLSERVER
+      databaseRulesets:
+      - rulesetName: mssqlRuleSet
+        tableMetadatas:
+        - tableName: bigKeyList
+          columnMetadatas:
+          - {algorithmName: NullValueLookup, domainName: FIRST_NAME, columnName: col10}
+        maskingJobs:
+        - jobName: mssqlJob

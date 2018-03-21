@@ -1,0 +1,41 @@
+className: [masking, job]
+endpointPath: masking-jobs
+nameField: JobName
+idField: MaskingJobId
+parentId: RulesetId
+memberVariables:
+  - name: maskingJobId
+    type: Integer
+  - name: jobName
+    type: String
+  - name: rulesetId
+    type: Integer
+  - name: createdBy
+    type: String
+  - name: createdTime
+    type: String
+  - name: email
+    type: String
+  - name: environmentId
+    type: Integer
+  - name: feedbackSize
+    type: Integer
+  - name: jobDescription
+    type: String
+  - name: maxMemory
+    type: Integer
+  - name: minMemory
+    type: Integer
+  - name: multiTenant
+    type: Boolean
+  - name: numInputStreams
+    type: Integer
+  - name: onTheFlyMasking
+    type: Boolean
+  - name: databaseMaskingOptions
+    type: DatabaseMaskingOptions
+  - name: onTheFlyMaskingSource
+    type: OnTheFlyMaskingSource
+queryParams:
+  - name: environment_id
+    type: Integer

@@ -1,0 +1,13 @@
+className: [export, Object]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: exportResponseMetadata
+    type: ExportResponseMetadata
+  - name: blob
+    type: String
+  - name: signature
+    type: String
+  - name: publicKey
+    type: String

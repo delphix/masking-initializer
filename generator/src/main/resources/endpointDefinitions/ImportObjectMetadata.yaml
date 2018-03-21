@@ -1,0 +1,14 @@
+className: [import, Object, Metadata]
+endpointPath: import
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: objectIdentifier
+    type: ObjectIdentifier
+  - name: objectType
+    type: String
+  - name: importStatus
+    type: String
+  - name: failureMessage
+    type: String

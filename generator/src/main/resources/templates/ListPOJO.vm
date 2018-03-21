@@ -1,0 +1,28 @@
+package com.delphix.masking.initializer.pojo;
+
+import java.util.List;
+
+public class ${ClassName}List {
+
+    private PageInfo _pageInfo;
+    private List<$ClassName> responseList;
+
+    public ${ClassName}List() {}
+
+    public PageInfo getPageInfo() {
+        return _pageInfo;
+    }
+
+    public void setPageInfo(PageInfo pageInfo) {
+        this._pageInfo = pageInfo;
+    }
+
+    public List<${ClassName}> getResponseList() {
+        return responseList;
+    }
+
+    public void setResponseList(List<${ClassName}> responseList) {
+        this.responseList = responseList;
+    }
+
+}

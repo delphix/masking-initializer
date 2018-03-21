@@ -1,0 +1,19 @@
+# NOTE the database may no longer exist
+host: localhost
+username: Axistech
+password: Axis_123
+port: 8282
+apiPath: masking
+applications:
+- applicationName: app
+  environments:
+  - environmentName: env1
+    purpose: MASK
+  - environmentName: env2
+      purpose: TOKENIZE
+- applicationName: app2
+  environments:
+  - environmentName: env3
+    purpose: MASK
+  - environmentName: env4
+    purpose: MASK

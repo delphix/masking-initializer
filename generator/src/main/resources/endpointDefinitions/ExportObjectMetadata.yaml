@@ -1,0 +1,11 @@
+className: [export, Object, Metadata]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: objectIdentifier
+    type: ObjectIdentifier
+  - name: objectType
+    type: String
+  - name: revisionHash
+    type: String

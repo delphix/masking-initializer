@@ -1,0 +1,221 @@
+package com.delphix.masking.initializer;
+
+import com.delphix.masking.initializer.exception.InputException;
+import lombok.Getter;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+
+/**
+ * This class is responsible for parsing the command line input and doing some validation.
+ */
+public class ApplicationFlags {
+
+    private static final Logger logger = LogManager.getLogger(ApplicationFlags.class);
+
+    private static final String HOST_OPTION = "H";
+    private static final String PORT_OPTION = "p";
+    private static final String API_PATH_OPTION = "a";
+    private static final String FILE_NAME_OPTION = "f";
+    private static final String USERNAME_OPTION = "u";
+    private static final String PASSWORD_OPTION = "P";
+    private static final String SETUP_OPTION = "s";
+    private static final String BACKUP_OPTION = "b";
+    private static final String OVERWRITE_OPTION = "o";
+    private static final String GLOBAL_OPTION = "g";
+    private static final String ENGINE_SYNC_OPTION = "e";
+    private static final String SCALE_OPTION = "c";
+    private static final String REPLACE_OPTION = "r";
+    private static final String MASKED_COLUMN_OPTION = "m";
+    private static final String LOG_LEVEL_OPTION = "l";
+    private static final String IGNORE_ERRORS = "i";
+
+
+    @Getter
+    Path file;
+    @Getter
+    String host;
+    @Getter
+    String port;
+    @Getter
+    String username;
+    @Getter
+    String password;
+    @Getter
+    String apiPath = "masking";
+    @Getter
+    Boolean overwrite;
+    @Getter
+    Boolean global;
+    @Getter
+    Boolean sync;
+    @Getter
+    Boolean scaled;
+    @Getter
+    Boolean replace = false;
+    @Getter
+    Boolean maskedColumn = false;
+    @Getter
+    boolean isBackup = false;
+    @Getter
+    boolean ignoreErrors = false;
+
+    public ApplicationFlags(String args[]) throws ParseException, InputException {
+
+        // Set the command line options
+        Options options = new Options();
+
+        options.addOption(HOST_OPTION, true, "Host machine to backup/restore");
+        options.addOption(PORT_OPTION, true, "Port on host machine masking app is located");
+        options.addOption(API_PATH_OPTION, true, "Path in URL, either 'dmsuite' or 'masking'");
+        options.addRequiredOption(FILE_NAME_OPTION, "fileName", true, "File to read or write to");
+        options.addOption(USERNAME_OPTION, true, "Masking engine username");
+        options.addOption(PASSWORD_OPTION, true, "Masking engine password");
+        options.addOption(SETUP_OPTION, false, "Run setup");
+        options.addOption(BACKUP_OPTION, false, "Run backup");
+        options.addOption(OVERWRITE_OPTION, false, "Overwrites the file in backup mode if the file exists");
+        options.addOption(GLOBAL_OPTION, false, "Specifies that global objects should be backed up");
+        options.addOption(ENGINE_SYNC_OPTION, false, "Specifies that engine sync objects should be backed up");
+        options.addOption(SCALE_OPTION, false, "Specifies that the scaled option should be used.");
+        options.addOption(REPLACE_OPTION, false, "Specifies that objects that already exist should be overwritten");
+        options.addOption(MASKED_COLUMN_OPTION, false, "Only backup masked columns");
+        options.addOption(LOG_LEVEL_OPTION, true, "Level of logging to use");
+        options.addOption(IGNORE_ERRORS, false, "Specifies that errors should be ignored");
+
+        // Read in the command line options and parse them
+        CommandLineParser commandLineParser = new DefaultParser();
+        CommandLine commandLine = commandLineParser.parse(options, args);
+
+        Configurator.setRootLevel(Level.INFO);
+        if (commandLine.hasOption(LOG_LEVEL_OPTION)) {
+            Level level;
+            switch (commandLine.getOptionValue(LOG_LEVEL_OPTION).toUpperCase()) {
+                case "INFO":
+                    level = Level.INFO;
+                    break;
+                case "DEBUG":
+                    level = Level.DEBUG;
+                    break;
+                case "TRACE":
+                    level = Level.TRACE;
+                    break;
+                case "ERROR":
+                    level = Level.ERROR;
+                    break;
+                case "WARN:":
+                    level = Level.WARN;
+                    break;
+                default:
+                    logger.error("Invalid log level: {}", commandLine.getOptionValue(LOG_LEVEL_OPTION));
+                    throw new InputException("Invalid log level");
+            }
+            Configurator.setRootLevel(level);
+        }
+
+        logger.debug("Starting application with args {}", Arrays.toString(args));
+
+        logger.trace("Parsing command line options");
+
+        boolean runSetup = commandLine.hasOption(SETUP_OPTION);
+        boolean runBackup = commandLine.hasOption(BACKUP_OPTION);
+        // Only Setup or backup can be called at once, and one must be called
+        if (!runSetup ^ runBackup) {
+            printErrorMessage(
+                    options,
+                    "Must set exactly one of %s or %s",
+                    SETUP_OPTION,
+                    BACKUP_OPTION);
+        }
+
+        // File name is required so it always exists at this point
+        file = Paths.get(commandLine.getOptionValue(FILE_NAME_OPTION));
+
+        boolean hasHost = commandLine.hasOption(HOST_OPTION);
+        boolean hasPort = commandLine.hasOption(PORT_OPTION);
+        boolean hasUsername = commandLine.hasOption(USERNAME_OPTION);
+        boolean hasPassword = commandLine.hasOption(PASSWORD_OPTION);
+
+        // Backup requires host/port/username/password being all set
+        if (runBackup) {
+            logger.trace("Parsing flags for backup mode");
+            isBackup = true;
+
+            if (!(hasHost && hasPort && hasUsername && hasPassword)) {
+                printErrorMessage(options,
+                        "All of the following options must be set for backup mode",
+                        HOST_OPTION,
+                        PORT_OPTION,
+                        USERNAME_OPTION,
+                        PASSWORD_OPTION);
+            }
+
+            // If the file already exists, make sure the user has specified the overwrite flag to overwrite the file
+            if (file.toFile().exists() && !commandLine.hasOption(OVERWRITE_OPTION)) {
+                printErrorMessage(
+                        options,
+                        "File already exists, please specify %s to overwrite file contents",
+                        OVERWRITE_OPTION);
+            }
+            host = commandLine.getOptionValue(HOST_OPTION);
+            port = commandLine.getOptionValue(PORT_OPTION);
+            username = commandLine.getOptionValue(USERNAME_OPTION);
+            password = commandLine.getOptionValue(PASSWORD_OPTION);
+            scaled = commandLine.hasOption(SCALE_OPTION);
+            maskedColumn = commandLine.hasOption(MASKED_COLUMN_OPTION);
+            /*
+             * Back up each section of the masking engine.
+             * By default only backup masking job objects and require flags to backup global objects
+             */
+            global = commandLine.hasOption(GLOBAL_OPTION);
+            sync = commandLine.hasOption(ENGINE_SYNC_OPTION);
+
+        } else {
+            logger.trace("Parsing flags for setup mode");
+            // Running setup
+
+            // File that we are restoring from must exist
+            if (!file.toFile().exists()) {
+                logger.error("Unable to find a file " + file);
+                return;
+            }
+
+            host = hasHost ? commandLine.getOptionValue(HOST_OPTION) : null;
+            port = hasPort ? commandLine.getOptionValue(PORT_OPTION) : null;
+            username = hasUsername ? commandLine.getOptionValue(USERNAME_OPTION) : null;
+            password = hasPassword ? commandLine.getOptionValue(PASSWORD_OPTION) : null;
+            replace = commandLine.hasOption(REPLACE_OPTION);
+
+            if (commandLine.hasOption(API_PATH_OPTION)) {
+                apiPath = commandLine.getOptionValue(API_PATH_OPTION);
+            }
+            if (commandLine.hasOption(IGNORE_ERRORS)) {
+                ignoreErrors = true;
+            }
+
+        }
+
+    }
+
+    /*
+     * Prints an error message and lists any arguments that are a part of the problem
+     */
+    private static void printErrorMessage(Options options, String formated, String... args) throws InputException {
+        String error = String.format(formated, args);
+        logger.error(error);
+        for (String arg : args) {
+            logger.info(options.getOption(arg).getDescription());
+        }
+        throw new InputException(error);
+    }
+
+}

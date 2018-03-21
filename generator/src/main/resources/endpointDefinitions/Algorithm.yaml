@@ -1,0 +1,18 @@
+className: [algorithm]
+endpointPath: algorithms
+nameField: AlgorithmName
+idField: AlgorithmName
+generatePost: false
+generatePut: false
+generateGet: true
+memberVariables:
+  - name: algorithmName
+    type: String
+  - name: algorithmType
+    type: String
+  - name: createdBy
+    type: String
+  - name: defaultAlgorithmCode
+    type: String
+  - name: description
+    type: String

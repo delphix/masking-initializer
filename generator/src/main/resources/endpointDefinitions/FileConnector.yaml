@@ -1,0 +1,24 @@
+className: [file, Connector]
+endpointPath: file-connectors
+nameField: ConnectorName
+idField: FileConnectorId
+parentId: EnvironmentId
+memberVariables:
+  - name: fileConnectorId
+    type: Integer
+  - name: connectorName
+    type: String
+  - name: environmentId
+    type: Integer
+  - name: fileType
+    type: String
+  - name: purpose
+    type: String
+  - name: connectionInfo
+    type: ConnectionInfo
+  - name: fileRulesets
+    type: List
+    listType: FileRuleset
+queryParams:
+  - name: environment_id
+    type: Integer

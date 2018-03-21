@@ -1,0 +1,29 @@
+className: [file, Metadata]
+endpointPath: file-metadata
+nameField: FileName
+idField: FileMetadataId
+parentId: RulesetId
+memberVariables:
+  - name: fileMetadataId
+    type: Integer
+  - name: fileName
+    type: String
+  - name: rulesetId
+    type: Integer
+  - name: fileFormatId
+    type: Integer
+  - name: fileType
+    type: String
+  - name: delimiter
+    type: String
+  - name: enclosure
+    type: String
+  - name: endOfRecord
+    type: String
+  - name: nameIsRegularExpression
+    type: Boolean
+  - name: fileFormatName
+    type: String
+queryParams:
+  - name: ruleset_id
+    type: Integer

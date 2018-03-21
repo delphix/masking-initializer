@@ -1,0 +1,23 @@
+className: [profile, Set]
+endpointPath: profile-sets
+nameField: ProfileSetName
+idField: ProfileSetId
+memberVariables:
+  - name: profileSetId
+    type: Integer
+  - name: profileSetName
+    type: String
+  - name: profileExpressionIds
+    type: Integer[]
+  - name: createdBy
+    type: String
+  - name: createdTime
+    type: String
+  - name: description
+    type: Boolean
+  - name: profileExpressions
+    type: list
+    listType: ProfileExpression
+  - name: profileExpressionNames
+    type: list
+    listType: String

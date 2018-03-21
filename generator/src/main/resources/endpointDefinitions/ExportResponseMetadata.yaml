@@ -1,0 +1,11 @@
+className: [export, Response, Metadata]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: exportHost
+    type: String
+  - name: exportDate
+    type: String
+  - name: exportedObjectList
+    type: ExportObjectMetadata[]

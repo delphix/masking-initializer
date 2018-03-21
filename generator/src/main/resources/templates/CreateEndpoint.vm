@@ -1,0 +1,60 @@
+package com.delphix.masking.initializer.maskingApi.endpointCaller;
+
+import com.delphix.masking.initializer.Utils;
+import com.delphix.masking.initializer.exception.ApiCallException;
+import com.delphix.masking.initializer.Utils;
+import com.delphix.masking.initializer.pojo.${ClassName};
+
+public class Post${ClassName} extends PostApiCall {
+
+    private static final String Post_${CLASS_NAME}_PATH = "${endpointPath}";
+
+    @Override
+    public void setResponse(String responseBody) {
+        id = Utils.getClassFromJson(responseBody, ${ClassName}.class).get${idField}().toString();
+    }
+
+    @Override
+    public String getEndpoint() {
+        return Post_${CLASS_NAME}_PATH;
+    }
+
+    @Override
+    protected void handle409(ApiCallDriver apiCallDriver, String body, boolean replace) throws ApiCallException {
+        Get${ClassName}s get${ClassName}s = new Get${ClassName}s();
+        apiCallDriver.makeGetCall(get${ClassName}s);
+        for (${ClassName} ${className}: get${ClassName}s.get${ClassName}s()) {
+            if (!${className}.get${nameField}().equalsIgnoreCase(name)) {
+                continue;
+            }
+            #if ($parentIdField)
+            if (!${className}.get${parentIdField}().equals(parentId)) {
+                continue;
+            }
+            #end
+            id = ${className}.get${idField}().toString();
+            #if ( $putAllowed )
+                if (replace) {
+                    ${ClassName} tmp = Utils.getClassFromJson(body, ${ClassName}.class);
+                    tmp.set${idField}(${className}.get${idField}());
+                    Put${ClassName} put${ClassName} = new Put${ClassName}(tmp);
+                    apiCallDriver.makePutCall(put${ClassName});
+                }
+            #end
+
+        }
+    }
+    #if ($parentIdField)
+    public Post${ClassName}(${ClassName} ${className}, Integer parentId) {
+        ${className}.set${parentIdField}(parentId);
+        this.parentId = parentId;
+    #else
+    public Post${ClassName}(${ClassName} ${className}) {
+    #end
+        body = Utils.getJSONFromClass(${className});
+        name = ${className}.get${nameField}();
+        #if ( $isMultiPart )
+            isMultiPart = ${isMultiPart};
+        #end
+    }
+}

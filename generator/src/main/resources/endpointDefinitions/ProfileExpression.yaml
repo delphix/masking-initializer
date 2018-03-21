@@ -1,0 +1,17 @@
+className: [profile, Expression]
+endpointPath: profile-expressions
+nameField: ExpressionName
+idField: ProfileExpressionId
+memberVariables:
+  - name: profileExpressionId
+    type: Integer
+  - name: domainName
+    type: String
+  - name: expressionName
+    type: String
+  - name: regularExpression
+    type: String
+  - name: createdBy
+    type: String
+  - name: dataLevelProfiling
+    type: Boolean

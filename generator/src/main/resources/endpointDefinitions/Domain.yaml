@@ -1,0 +1,15 @@
+className: [domain]
+endpointPath: domains
+nameField: DomainName
+idField: DomainName
+memberVariables:
+  - name: domainName
+    type: String
+  - name: classification
+    type: String
+  - name: createdBy
+    type: String
+  - name: defaultAlgorithmCode
+    type: String
+  - name: defaultTokenizationCode
+    type: String

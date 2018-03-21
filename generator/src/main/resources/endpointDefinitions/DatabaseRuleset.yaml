@@ -1,0 +1,30 @@
+className: [database, Ruleset]
+endpointPath: database-rulesets
+nameField: RulesetName
+idField: DatabaseRulesetId
+parentId: DatabaseConnectorId
+generatePut: false
+memberVariables:
+  - name: databaseRulesetId
+    type: Integer
+  - name: rulesetName
+    type: String
+  - name: databaseConnectorId
+    type: Integer
+  - name: environmentId
+    type: Integer
+  - name: tableMetadatas
+    type: List
+    listType: TableMetadata
+  - name: maskingJobs
+    type: List
+    listType: MaskingJob
+  - name: profilingJobs
+    type: List
+    listType: ProfilingJob
+  - name: tableMetadataFiles
+    type: List
+    listType: String
+queryParams:
+  - name: environment_id
+    type: Integer

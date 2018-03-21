@@ -1,0 +1,19 @@
+className: [connection, Info]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: connectionMode
+    type: String
+  - name: path
+    type: String
+  - name: host
+    type: String
+  - name: loginName
+    type: String
+  - name: password
+    type: String
+  - name: port
+    type: Integer
+  - name: sshKey
+    type: String

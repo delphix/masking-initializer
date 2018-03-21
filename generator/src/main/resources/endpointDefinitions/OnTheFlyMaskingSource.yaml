@@ -1,0 +1,13 @@
+className: [on, The, Fly, Masking, Source]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: connectorId
+    type: Integer
+  - name: connectorType
+    type: String
+  - name: environmentName
+    type: String
+  - name: connectorName
+    type: String

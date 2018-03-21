@@ -1,0 +1,48 @@
+# NOTE the database may no longer exist
+host: localhost
+username: Axistech
+password: Axis_123
+port: 8282
+apiPath: masking
+applications:
+- applicationName: app
+  environments:
+  - environmentName: env1
+    purpose: MASK
+    databaseConnectors:
+    - connectorName: oraConn1
+      databaseType: ORACLE
+      host: db.host.com
+      port: 1521
+      schemaName: BLACKBOX
+      sid: xe
+      username: user
+      password: pass
+      databaseRulesets:
+      - rulesetName: kettleTest
+        tableMetadatas:
+        - tableName: KETTLETEST
+          columnMetadatas:
+          - {algorithmName: FirstNameLookup, domainName: FIRST_NAME, columnName: NAME}
+        - tableName: ANOTHERTABLE
+          columnMetadatas:
+          - {algorithmName: FirstNameLookup, domainName: FIRST_NAME, columnName: NAME_AGAIN}
+        maskingJobs:
+        - jobName: oracleJob
+    - connectorName: oraConn2
+          databaseType: ORACLE
+          host: db.host.com
+          port: 1521
+          schemaName: BLACKBOX
+          sid: xe
+          username: user
+          password: pass
+          databaseRulesets:
+          - rulesetName: kettleTest
+            tableMetadatas:
+            - tableName: KETTLETEST
+              columnMetadatas:
+              - {algorithmName: FirstNameLookup, domainName: FIRST_NAME, columnName: NAME}
+            maskingJobs:
+            - jobName: oracleJob
+            - jobName: anotherJobBecauseWhyNot

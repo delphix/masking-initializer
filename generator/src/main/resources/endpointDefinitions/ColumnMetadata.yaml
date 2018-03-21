@@ -1,0 +1,45 @@
+className: [column, Metadata]
+endpointPath: column-metadata
+nameField: ColumnName
+idField: ColumnMetadataId
+parentId: TableMetadataId
+generateGet: true
+generatePost: false
+memberVariables:
+  - name: columnMetadataId
+    type: Integer
+  - name: columnName
+    type: String
+  - name: tableMetadataId
+    type: Integer
+  - name: algorithmName
+    type: String
+  - name: domainName
+    type: String
+  - name: columnLength
+    type: Integer
+  - name: isMasked
+    type: Boolean
+  - name: isPrimaryKey
+    type: Boolean
+  - name: isIndex
+    type: Boolean
+  - name: isForeignKey
+    type: Boolean
+  - name: dateFormat
+    type: String
+  - name: notes
+    type: String
+  - name: xmlDataSource
+    type: String
+  - name: xmlFileFormatId
+    type: Integer
+  - name: isProfilerWritable
+    type: Boolean
+  - name: dataType
+    type: String
+queryParams:
+  - name: table_metadata_id
+    type: Integer
+  - name: is_masked
+    type: Boolean

@@ -1,0 +1,33 @@
+className: [file, Field, Metadata]
+endpointPath: file-field-metadata
+nameField: FieldName
+idField: FileFieldMetadataId
+parentId: FileFormatId
+generateGet: true
+generatePost: false
+memberVariables:
+  - name: fileFieldMetadataId
+    type: Integer
+  - name: fileFormatId
+    type: Integer
+  - name: fieldLength
+    type: Integer
+  - name: fieldName
+    type: String
+  - name: fieldPositionNumber
+    type: Integer
+  - name: algorithmName
+    type: String
+  - name: domainName
+    type: String
+  - name: dateFormat
+    type: String
+  - name: isMasked
+    type: Boolean
+  - name: notes
+    type: String
+queryParams:
+  - name: file_format_id
+    type: Integer
+  - name: is_masked
+    type: Boolean

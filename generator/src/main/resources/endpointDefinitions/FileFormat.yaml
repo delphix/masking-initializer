@@ -1,0 +1,20 @@
+className: [file, Format]
+endpointPath: file-formats
+nameField: FileFormatName
+idField: FileFormatId
+isMultiPart: true
+generatePut: false
+generatePost: false
+memberVariables:
+  - name: fileFormatId
+    type: Integer
+  - name: fileFormatName
+    type: String
+  - name: fileFormatType
+    type: String
+  - name: fileFieldMetadata
+    type: List
+    listType: FileFieldMetadata
+  - name: fileFieldMetadataFiles
+    type: List
+    listType: String

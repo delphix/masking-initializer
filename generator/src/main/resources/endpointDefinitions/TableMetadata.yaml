@@ -1,0 +1,26 @@
+className: [table, Metadata]
+endpointPath: table-metadata
+nameField: TableName
+idField: TableMetadataId
+parentId: RulesetId
+memberVariables:
+  - name: tableMetadataId
+    type: Integer
+  - name: tableName
+    type: String
+  - name: rulesetId
+    type: Integer
+  - name: customSql
+    type: String
+  - name: whereClause
+    type: String
+  - name: havingClause
+    type: String
+  - name: keyColumn
+    type: String
+  - name: columnMetadatas
+    type: List
+    listType: ColumnMetadata
+queryParams:
+  - name: ruleset_id
+    type: Integer

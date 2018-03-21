@@ -1,0 +1,36 @@
+package com.delphix.masking.initializer.maskingApi.endpointCaller;
+
+import com.delphix.masking.initializer.exception.ApiCallException;
+import com.delphix.masking.initializer.Utils;
+import com.delphix.masking.initializer.pojo.${ClassName};
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
+
+
+public class Put${ClassName} extends PutApiCall {
+
+    private static final String Post_${CLASS_NAME}_PATH = "${endpointPath}/";
+
+    @Override
+    public void setResponse(String responseBody) {
+        id = Utils.getClassFromJson(responseBody, ${ClassName}.class).get${idField}().toString();
+    }
+
+    @Override
+    public String getEndpoint() {
+        try {
+            return Post_${CLASS_NAME}_PATH + URLEncoder.encode(id, "ISO-8859-1").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Put${ClassName}(${ClassName} ${className}) {
+        body = Utils.getJSONFromClass(${className});
+        name = ${className}.get${nameField}();
+        id = ${className}.get${idField}().toString();
+        #if ( $isMultiPart )
+            //isMultiPart = ${isMultiPart};
+        #end
+    }
+}

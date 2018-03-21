@@ -1,0 +1,47 @@
+className: [database, Connector]
+endpointPath: database-connectors
+nameField: ConnectorName
+idField: DatabaseConnectorId
+parentId: EnvironmentId
+memberVariables:
+  - name: databaseConnectorId
+    type: Integer
+  - name: connectorName
+    type: String
+  - name: databaseType
+    type: String
+  - name: environmentId
+    type: Integer
+  - name: customDriverName
+    type: String
+  - name: databaseName
+    type: String
+  - name: host
+    type: String
+  - name: instanceName
+    type: String
+  - name: jdbc
+    type: String
+  - name: password
+    type: String
+  - name: port
+    type: Integer
+  - name: schemaName
+    type: String
+  - name: servicePrincipalName
+    type: String
+  - name: sid
+    type: String
+  - name: username
+    type: String
+  - name: useKerberosAuth
+    type: Boolean
+  - name: databaseRulesets
+    type: List
+    listType: DatabaseRuleset
+  - name: databaseRulesetFiles
+    type: List
+    listType: String
+queryParams:
+  - name: environmentId
+    type: Integer

@@ -1,0 +1,25 @@
+className: [database, Masking, Options]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: batchUpdate
+    type: Boolean
+  - name: bulkData
+    type: Boolean
+  - name: commitSize
+    type: Integer
+  - name: dropConstraints
+    type: Boolean
+  - name: dropIndexes
+    type: Boolean
+  - name: dropTriggers
+    type: Boolean
+  - name: numOutputThreadsPerStream
+    type: Integer
+  - name: truncateTables
+    type: Boolean
+  - name: prescript
+    type: MaskingJobScript
+  - name: postscript
+    type: MaskingJobScript

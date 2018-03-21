@@ -1,0 +1,39 @@
+# NOTE this sftp server may no longer exists
+host: localhost
+username: Axistech
+password: Axis_123
+port: 8282
+apiPath: masking
+applications:
+- applicationName: app
+  environments:
+  - environmentName: env
+    purpose: MASK
+    fileConnectors:
+    - connectionInfo: {connectionMode: SFTP, host: localhost, loginName: sftp,
+        password: null, path: /Users/SFTP/Public, port: 22, password: blahblahblah}
+      connectorName: delm
+      fileType: DELIMITED
+      fileRulesets:
+      - rulesetName: delmRulesetSFTP
+        fileMetadatas:
+        - fileName: empty_delm.*
+          fileFormatId: 1
+          endOfRecord: linux
+          delimiter: '*'
+          nameIsRegularExpression: true
+        maskingJobs:
+        - jobName: delmSFTPMask
+    - connectionInfo: {connectionMode: LOCAL, path: /}
+      connectorName: delmLocal
+      fileType: DELIMITED
+      fileRulesets:
+      - rulesetName: delmRulesetLocal
+        fileMetadatas:
+        - fileName: empty_delm.*
+          fileFormatId: 1
+          endOfRecord: linux
+          delimiter: '*'
+          nameIsRegularExpression: true
+        maskingJobs:
+        - jobName: delmLocalMask
