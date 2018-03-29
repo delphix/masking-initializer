@@ -32,7 +32,7 @@ information on each version.
 
 There are a couple of ways to obtain a copy of this tool.
 
-1. Coming soon: An external link to download the binaries.
+1. You can now download the binaries under the "release".
 2. Clone this repository, checkout the version you want (branch name `Vx.y.z` and either run `./gradlew installDist` to generate the files
 in `/build/install/dlpx-masking-initializer` or `./gradlew distZip` to generate the same zip file
 that exists in google drive.
