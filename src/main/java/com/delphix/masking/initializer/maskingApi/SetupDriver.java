@@ -276,7 +276,7 @@ public class SetupDriver {
 
     private void handleExportObject(List<ExportObject> exportObjects) throws ApiCallException {
         for (ExportObject exportObject : exportObjects) {
-            PostImportObject postImportObject = new PostImportObject(exportObject);
+            PostImportObject postImportObject = new PostImportObject(exportObject, replace);
             apiCallDriver.makePostCall(postImportObject);
         }
     }
@@ -285,7 +285,7 @@ public class SetupDriver {
         for (String filename : exportObjectFiles) {
             ExportObject exportObject = Utils.getClassFromFile(baseFolder.resolve(filename + JSON_EXTENSION),
                     ExportObject.class);
-            PostImportObject postImportObject = new PostImportObject(exportObject);
+            PostImportObject postImportObject = new PostImportObject(exportObject, replace);
             apiCallDriver.makePostCall(postImportObject);
         }
     }
