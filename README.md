@@ -56,10 +56,10 @@ Please see example `yaml` files in the [example folder](examples/).
 
 The following flags are available to help run this tool.
 
- * `-H` specifies the host of the masking engine. Can be `localhost`, `12.23.32.12`, `youComapnyMasking.com`.
- * `-p` specifies the port that the masking engine is running on.
- * `-u` specifies the username of an admin user that can be used to login to the masking engine.
- * `-P` specifies the password of the admin user
+ * `-H` specifies the host of the masking engine. Can be `localhost`, `12.23.32.12`, `youComapnyMasking.com`. Can also be specified by environment variable `MASKING_HOST`.
+ * `-p` specifies the port that the masking engine is running on. Can also be specified by environment variable `MASKING_PORT`.
+ * `-u` specifies the username of an admin user that can be used to login to the masking engine. Can also be specified by environment variable `MASKING_USER`.
+ * `-P` specifies the password of the admin user. Can also be specified by environment variable `MASKING_PASSWORD`.
  * `-f` specifies the file or folder to either read from (for restoration) or write to (for backup)
  * `-b` runs in backup mode
  * `-s` runs in setup (restoration) mode
@@ -85,6 +85,16 @@ The following flags are available to help run this tool.
  This flag is only used in setup mode.
 
  The `-f` flag is always required and one and only one of `-s` or `-b` must be provided.
+
+## Environment Variables
+
+The following environment variable can be set instead of using the above flags.
+See the [flags](#flags) for how each variable is used.
+
+* `MASKING_USER` replaces `-u`
+* `MASKING_PASSWORD` replaces `-P`
+* `MASKING_HOST` replaces `-H`
+* `MASKING_PORT` replaces `-p`
 
 # Backup
 

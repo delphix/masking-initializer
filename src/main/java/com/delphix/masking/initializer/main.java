@@ -9,7 +9,7 @@ public class main {
 
     private static final Logger logger = LogManager.getLogger(main.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         try {
             ApplicationFlags applicationFlags = new ApplicationFlags(args);
 
