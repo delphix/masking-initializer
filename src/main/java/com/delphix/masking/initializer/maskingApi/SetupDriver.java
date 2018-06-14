@@ -11,6 +11,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.GetEnvironments
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileConnectors;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFieldMetadatas;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFormats;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfileSets;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostApplication;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostDatabaseConnector;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostDatabaseRuleset;
@@ -58,6 +59,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.delphix.masking.initializer.Constants.BASE_FILE;
 import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
@@ -487,7 +489,29 @@ public class SetupDriver {
     }
 
     private void handleProfilingJob(List<ProfilingJob> profilingJobs, Integer ruleSetId) throws ApiCallException {
+        /*
+         * The profile set name is stored in the backup so we have to get all profile sets on the engine so we can map
+         * the name of the profile set to its ID so that we can properly create the profile job.
+         */
+        GetProfileSets getProfileSets = new GetProfileSets();
+        apiCallDriver.makeGetCall(getProfileSets);
+        Map<String, Integer> profileSetsNameToId = getProfileSets
+                .getProfileSets()
+                .stream()
+                .collect(Collectors.toMap(ProfileSet::getProfileSetName, ProfileSet::getProfileSetId));
         for (ProfilingJob profilingJob : profilingJobs) {
+
+            // Map the profile set name to the correct ID and fail if we cannot find the right profile set
+            String profileSetName = profilingJob.getProfileSetName();
+            if (!profileSetsNameToId.containsKey(profileSetName)) {
+                logger.error("Expecting profile job with name {} to exist, but none found", profileSetName);
+                throw new RuntimeException(String.format("Missing profile set."));
+            }
+
+            Integer profilerSetId = profileSetsNameToId.get(profileSetName);
+            logger.debug("Mapping profile set name {} to ID {}", profileSetName, profilerSetId);
+            profilingJob.setProfileSetId(profilerSetId);
+
             PostProfilingJob postProfilingJob = new PostProfilingJob(profilingJob, ruleSetId);
             apiCallDriver.makePostCall(postProfilingJob);
         }

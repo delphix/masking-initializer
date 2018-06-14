@@ -37,6 +37,7 @@ import com.delphix.masking.initializer.pojo.FileRuleset;
 import com.delphix.masking.initializer.pojo.MaskingJob;
 import com.delphix.masking.initializer.pojo.MaskingSetup;
 import com.delphix.masking.initializer.pojo.ProfileExpression;
+import com.delphix.masking.initializer.pojo.ProfileSet;
 import com.delphix.masking.initializer.pojo.ProfilingJob;
 import com.delphix.masking.initializer.pojo.TableMetadata;
 import org.apache.commons.io.FileUtils;
@@ -81,7 +82,8 @@ public class BackupDriver {
     private boolean isMasked;
     private Path baseFolder;
 
-    private Map<Integer, String> fileFormats = new HashMap<>();
+    private Map<Integer, String> fileFormatsIdToName = new HashMap<>();
+    private Map<Integer, String> profileSetsIdToName = new HashMap<>();
 
     /**
      * Initialize the {@link #maskingSetup} object with the necessary masking engine information
@@ -146,19 +148,31 @@ public class BackupDriver {
     public void run() {
 
         backupFileFormats();
-        // Masking jobs are always backed up regardless of provided flags
-        backupApplications();
 
         // Back up global state depending on the user input
         if (applicationFlags.getGlobal()) {
             backupProfiles();
             backupDomains();
+        } else {
+            /*
+             * If we are not backing up profiler sets, we still need a map of profiler sets id -> names so that we can
+             * properly back up any profiler jobs.
+             */
+            GetProfileSets getProfileSets = new GetProfileSets();
+            apiCallDriver.makeGetCall(getProfileSets);
+            profileSetsIdToName = getProfileSets
+                    .getProfileSets()
+                    .stream()
+                    .collect(Collectors.toMap(ProfileSet::getProfileSetId, ProfileSet::getProfileSetName));
         }
 
         // Back up syncable objects depening on the user input
         if (applicationFlags.getSync()) {
             backupSync();
         }
+
+        // Masking jobs are always backed up regardless of provided flags
+        backupApplications();
 
         // Write the output to a file
         finishBackup();
@@ -236,7 +250,7 @@ public class BackupDriver {
         }
         getFileFormats.getFileFormats().forEach(fileFormat -> fileFormat.setFileFieldMetadataFiles(new ArrayList<>()));
         getFileFormats.getFileFormats().forEach(this::handleFileFieldMetadata);
-        getFileFormats.getFileFormats().forEach(fileFormat -> fileFormats.put(fileFormat.getFileFormatId(),
+        getFileFormats.getFileFormats().forEach(fileFormat -> fileFormatsIdToName.put(fileFormat.getFileFormatId(),
                 fileFormat.getFileFormatName()));
         maskingSetup.setFileFormats(getFileFormats.getFileFormats());
     }
@@ -348,6 +362,10 @@ public class BackupDriver {
                                 .map(profileExpressionMap::get)
                                 .collect(Collectors.toList())));
         getProfileSets.getProfileSets().stream().forEach(profileSet -> profileSet.setProfileExpressionIds(null));
+        profileSetsIdToName = getProfileSets
+                .getProfileSets()
+                .stream()
+                .collect(Collectors.toMap(ProfileSet::getProfileSetId, ProfileSet::getProfileSetName));
         maskingSetup.setProfileSets(getProfileSets.getProfileSets());
     }
 
@@ -526,11 +544,13 @@ public class BackupDriver {
         ArrayList<ProfilingJob> profilingJobs = new ArrayList<>();
         for (ProfilingJob profilingJob : getProfilingJobs.getProfilingJobs()) {
             if (profilingJob.getRulesetId().equals(parentId)) {
+                // Store the profile set name based on the set id
+                profilingJob.setProfileSetName(profileSetsIdToName.get(profilingJob.getProfileSetId()));
+                profilingJob.setProfileSetId(null);
                 profilingJobs.add(profilingJob);
             }
         }
         return profilingJobs;
-
     }
 
     private FileRuleset handleFileRuleSet(FileRuleset fileRuleset) {
@@ -548,8 +568,8 @@ public class BackupDriver {
         }
 
         for (FileMetadata fileMetadata : getFileMetadatas.getFileMetadatas()) {
-            if (fileFormats.containsKey(fileMetadata.getFileMetadataId())) {
-                fileMetadata.setFileFormatName(fileFormats.get(fileMetadata.getFileFormatId()));
+            if (fileFormatsIdToName.containsKey(fileMetadata.getFileMetadataId())) {
+                fileMetadata.setFileFormatName(fileFormatsIdToName.get(fileMetadata.getFileFormatId()));
             }
         }
         fileRuleset.setFileMetadatas(getFileMetadatas.getFileMetadatas());
