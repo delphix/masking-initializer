@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class ApiCallDriver {
 
@@ -118,11 +119,8 @@ public class ApiCallDriver {
         logger.debug("Body: {}", jsonBody);
 
         StringEntity stringEntity;
-        try {
-            stringEntity = new StringEntity(jsonBody);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8);
+
         HttpPost httpPost = new HttpPost(url);
         httpPost.setEntity(stringEntity);
 
