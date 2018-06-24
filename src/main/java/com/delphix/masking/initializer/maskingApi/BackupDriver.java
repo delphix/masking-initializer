@@ -444,12 +444,21 @@ public class BackupDriver {
 
         databaseConnector.setPassword(DATABASE_PASSWORD);
         /*
-         * There is a bug in the masking application that sometimes returns the instanceName for an oracle connector
+         * There is a bug in the masking application that sometimes returns the instanceName for non MSSQL connectors
          * as an empty string even though that field is not used for oracle connectors. During setup, the masking engine
          * throws an error because this field is not allowed for oracle connectors. This is a workaround until that bug
          * is fixed.
          */
-        if (databaseConnector.getDatabaseType() != null && databaseConnector.getDatabaseType().contains("oracle")) {
+        if (databaseConnector.getDatabaseType() != null && !databaseConnector.getDatabaseType().contains("MSSQL")) {
+            databaseConnector.setInstanceName(null);
+        }
+
+        /*
+         * There is another bug where the host can get returned for advanced connectors as well even though only the
+         * JDBC connection string should be supplied.
+         */
+        if (databaseConnector.getJdbc() != null) {
+            databaseConnector.setHost(null);
             databaseConnector.setInstanceName(null);
         }
 
