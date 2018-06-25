@@ -8,6 +8,8 @@ memberVariables:
     type: Integer
   - name: jobName
     type: String
+  - name: profileSetName
+    type: String
   - name: profileSetId
     type: Integer
   - name: rulesetId
