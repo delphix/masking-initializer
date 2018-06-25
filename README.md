@@ -165,6 +165,16 @@ option 1 in [Password Limitation](#password-limitations).
 4. Run this tool in restore mode, as spelled out in the [Restoring](#restoring) section, anytime you want
 to restore a masking application to the configuration specified in the `yaml` file.
 
+# Password Limitations
+
+One limitation of the API is that it does not return database or SFTP server passwords.
+This is done for security purposes. This means the backup file does not contain the
+database or SFTP server passwords. In order to completely restore from a backup file, you
+must do the following.
+
+Manually open up the backup file and fill in all password fields. They are
+tagged with `DATABASE_PASSWORD` and `SFTP_PASSWORD` so that they can be easily identified.
+
 # File Masking
 
 Unfortunately the masking engine does not provide a way to retrieve file formats that have been uploaded,
