@@ -5,6 +5,10 @@ import com.delphix.masking.initializer.exception.ApiCallException;
 import com.delphix.masking.initializer.pojo.apiBody.LoginApiBody;
 import com.delphix.masking.initializer.pojo.apiResponse.ApiErrorMessage;
 import com.delphix.masking.initializer.pojo.apiResponse.LoginApiResponse;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -116,7 +120,7 @@ public class ApiCallDriver {
     private String makePostCall(String endpointPath, String jsonBody) throws ApiCallException {
         String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
         logger.info(url + " POST");
-        logger.debug("Body: {}", jsonBody);
+        logger.debug("Request Body: {}", jsonBody);
 
         StringEntity stringEntity;
         stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8);
@@ -132,7 +136,7 @@ public class ApiCallDriver {
         String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
 
         logger.info(url + " PUT");
-        logger.debug("Body: {}", jsonBody);
+        logger.debug("Request Body: {}", jsonBody);
 
         StringEntity stringEntity;
         try {
@@ -171,7 +175,12 @@ public class ApiCallDriver {
 
             InputStreamReader inputStreamReader = new InputStreamReader(httpResponse.getEntity().getContent());
             String responseBody = IOUtils.toString(inputStreamReader);
-            logger.debug("Response body: {}", responseBody);
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            JsonParser jp = new JsonParser();
+            JsonElement je = jp.parse(responseBody);
+            String prettyJsonString = gson.toJson(je);
+            logger.debug("Response body: {}", prettyJsonString);
 
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
                 ApiErrorMessage apiErrorMessage = Utils.getClassFromJson(responseBody, ApiErrorMessage.class);
