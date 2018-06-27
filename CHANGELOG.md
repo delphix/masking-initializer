@@ -11,6 +11,18 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [0.6.0] - 2018-06-19
+
+### Added
+Added #8 - [FEATURE] Add ability to specify flags through environment variables
+
+### Fixed
+Fix for issue #2 - Profiler Set Purpose (description) missing on restore
+Fix for issue #3 - Algorithms being overwritten on restore when using -s | DEBUG option
+Fix for issue #4 - Host and instance name conflict for advanced jdbc connectors
+Fix for issue #5 - Error loading specific connector from missing profile set ID#
+Fix for issue #10 - UTF-8 characters are not properly encoded on setup
+
 ## [0.5.0]
 
 ### Added

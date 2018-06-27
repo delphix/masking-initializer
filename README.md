@@ -25,7 +25,7 @@ of the following objects.
 
 # Version
 
-The current version is `0.5.0`. Please see the [Change log](#CHANGELOG.md) for
+The current version is `0.6.0`. Please see the [Change log](CHANGELOG.md) for
 information on each version.
 
 # Install
@@ -56,10 +56,10 @@ Please see example `yaml` files in the [example folder](examples/).
 
 The following flags are available to help run this tool.
 
- * `-H` specifies the host of the masking engine. Can be `localhost`, `12.23.32.12`, `youComapnyMasking.com`.
- * `-p` specifies the port that the masking engine is running on.
- * `-u` specifies the username of an admin user that can be used to login to the masking engine.
- * `-P` specifies the password of the admin user
+ * `-H` specifies the host of the masking engine. Can be `localhost`, `12.23.32.12`, `youComapnyMasking.com`. Can also be specified by environment variable `MASKING_HOST`.
+ * `-p` specifies the port that the masking engine is running on. Can also be specified by environment variable `MASKING_PORT`.
+ * `-u` specifies the username of an admin user that can be used to login to the masking engine. Can also be specified by environment variable `MASKING_USER`.
+ * `-P` specifies the password of the admin user. Can also be specified by environment variable `MASKING_PASSWORD`.
  * `-f` specifies the file or folder to either read from (for restoration) or write to (for backup)
  * `-b` runs in backup mode
  * `-s` runs in setup (restoration) mode
@@ -85,6 +85,16 @@ The following flags are available to help run this tool.
  This flag is only used in setup mode.
 
  The `-f` flag is always required and one and only one of `-s` or `-b` must be provided.
+
+## Environment Variables
+
+The following environment variable can be set instead of using the above flags.
+See the [flags](#flags) for how each variable is used.
+
+* `MASKING_USER` replaces `-u`
+* `MASKING_PASSWORD` replaces `-P`
+* `MASKING_HOST` replaces `-H`
+* `MASKING_PORT` replaces `-p`
 
 # Backup
 
@@ -122,6 +132,9 @@ following command will upload all objects in the backup file to the masking engi
 ./dlpx-masking-initializer -f /Users/me/backup.yaml -s
 ```
 
+**IMPORTANT** Please see [Password Limitation](#password-limitations) before attempting to
+restore from a backup file.
+
 ###### Specifying a different masking engine
 
 By default, the above command will attempt to restore the masking engine to which it was backed
@@ -150,10 +163,19 @@ An example workflow is explained below.
 Working with an existing `yaml` file is pretty simple as the structure is already laid
 and should make sense to anyone familiar with the masking app. **IMPORTANT**: Even if you
 wish to use the exact some configuration you *must* still add in the passwords to the
-database and sftp connectors as this information is not provided by the API. Please see
-option 1 in [Password Limitation](#password-limitations).
+database and sftp connectors as this information is not provided by the API. Please see [Password Limitation](#password-limitations).
 4. Run this tool in restore mode, as spelled out in the [Restoring](#restoring) section, anytime you want
 to restore a masking application to the configuration specified in the `yaml` file.
+
+# Password Limitations
+
+One limitation of the API is that it does not return database or SFTP server passwords.
+This is done for security purposes. This means the backup file does not contain the
+database or SFTP server passwords. In order to completely restore from a backup file, you
+must do the following.
+
+Manually open up the backup file and fill in all password fields. They are
+tagged with `DATABASE_PASSWORD` and `SFTP_PASSWORD` so that they can be easily identified.
 
 # File Masking
 
@@ -166,3 +188,32 @@ the required file format at step up time, the job can be configured properly. Fo
 2. User runs this back up script on the masking engine.
 3. User wants to restore that masking job to another engine. They can achieve this as long as
  `my_file_format.txt`  is next to the backup file, or in the backup folder.
+
+# Contribute
+
+1.  Fork the project.
+2.  Make your bug fix or new feature.
+3.  Add tests for your code.
+4.  Send a pull request.
+
+Contributions must be signed as `User Name <user@email.com>`. Make sure to [set up Git with user name and email address](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup). Bug fixes should branch from the current stable branch. New features should be based on the `master` branch.
+
+### Code of Conduct
+
+This project operates under the [Delphix Code of Conduct](https://delphix.github.io/code-of-conduct.html). By participating in this project you agree to abide by its terms.
+
+### Contributor Agreement
+
+All contributors are required to sign the Delphix Contributor agreement prior to contributing code to an open source repository. This process is handled automatically by [cla-assistant](https://cla-assistant.io/). Simply open a pull request and a bot will automatically check to see if you have signed the latest agreement. If not, you will be prompted to do so as part of the pull request process.
+
+# Reporting Issues
+
+Issues should be reported in the GitHub repo's issue tab. Include a link to it.
+
+# Statement of Support
+
+This software is provided as-is, without warranty of any kind or commercial support through Delphix. See the associated license for additional details. Questions, issues, feature requests, and contributions should be directed to the community as outlined in the [Delphix Community Guidelines](https://delphix.github.io/community-guidelines.html).
+
+# License
+
+This is code is licensed under the Apache License 2.0. Full license is available [here](./LICENSE).

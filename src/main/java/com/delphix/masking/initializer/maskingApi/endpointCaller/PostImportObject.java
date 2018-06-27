@@ -9,8 +9,14 @@ public class PostImportObject extends PostApiCall {
 
     private ImportObjectMetadata[] importObjectMetadata;
 
-    public PostImportObject(ExportObject exportObject) {
+    private final boolean isForceOverwrite;
+
+    /*
+     * Force overwrite corresponds to replace for other objects.
+     */
+    public PostImportObject(ExportObject exportObject, boolean isForceOverwrite) {
         body = Utils.getJSONFromClass(exportObject);
+        this.isForceOverwrite = isForceOverwrite;
     }
 
     @Override
@@ -20,7 +26,7 @@ public class PostImportObject extends PostApiCall {
 
     @Override
     protected String getEndpoint() {
-        return "import?force_overwrite=true";
+        return "import?force_overwrite=" + isForceOverwrite;
     }
 
     @Override
