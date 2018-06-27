@@ -132,6 +132,9 @@ following command will upload all objects in the backup file to the masking engi
 ./dlpx-masking-initializer -f /Users/me/backup.yaml -s
 ```
 
+**IMPORTANT** Please see [Password Limitation](#password-limitations) before attempting to
+restore from a backup file.
+
 ###### Specifying a different masking engine
 
 By default, the above command will attempt to restore the masking engine to which it was backed
@@ -160,10 +163,19 @@ An example workflow is explained below.
 Working with an existing `yaml` file is pretty simple as the structure is already laid
 and should make sense to anyone familiar with the masking app. **IMPORTANT**: Even if you
 wish to use the exact some configuration you *must* still add in the passwords to the
-database and sftp connectors as this information is not provided by the API. Please see
-option 1 in [Password Limitation](#password-limitations).
+database and sftp connectors as this information is not provided by the API. Please see [Password Limitation](#password-limitations).
 4. Run this tool in restore mode, as spelled out in the [Restoring](#restoring) section, anytime you want
 to restore a masking application to the configuration specified in the `yaml` file.
+
+# Password Limitations
+
+One limitation of the API is that it does not return database or SFTP server passwords.
+This is done for security purposes. This means the backup file does not contain the
+database or SFTP server passwords. In order to completely restore from a backup file, you
+must do the following.
+
+Manually open up the backup file and fill in all password fields. They are
+tagged with `DATABASE_PASSWORD` and `SFTP_PASSWORD` so that they can be easily identified.
 
 # File Masking
 
