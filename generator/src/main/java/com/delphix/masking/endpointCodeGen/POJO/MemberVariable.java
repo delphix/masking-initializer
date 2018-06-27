@@ -12,5 +12,4 @@ public class MemberVariable {
     public String getUpperName() {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
-
 }

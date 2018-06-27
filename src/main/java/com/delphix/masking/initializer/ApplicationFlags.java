@@ -40,6 +40,11 @@ public class ApplicationFlags {
     private static final String LOG_LEVEL_OPTION = "l";
     private static final String IGNORE_ERRORS = "i";
 
+    private static final String MASKING_USER = "MASKING_USER";
+    private static final String MASKING_PASSWORD = "MASKING_PASSWORD";
+    private static final String MASKING_HOST = "MASKING_HOST";
+    private static final String MASKING_PORT = "MASKING_PORT";
+
 
     @Getter
     Path file;
@@ -140,17 +145,18 @@ public class ApplicationFlags {
         // File name is required so it always exists at this point
         file = Paths.get(commandLine.getOptionValue(FILE_NAME_OPTION));
 
-        boolean hasHost = commandLine.hasOption(HOST_OPTION);
-        boolean hasPort = commandLine.hasOption(PORT_OPTION);
-        boolean hasUsername = commandLine.hasOption(USERNAME_OPTION);
-        boolean hasPassword = commandLine.hasOption(PASSWORD_OPTION);
+        username = getValue(MASKING_USER, USERNAME_OPTION, commandLine);
+        password = getValue(MASKING_PASSWORD, PASSWORD_OPTION, commandLine);
+        port = getValue(MASKING_PORT, PORT_OPTION, commandLine);
+        host = getValue(MASKING_HOST, HOST_OPTION, commandLine);
+
 
         // Backup requires host/port/username/password being all set
         if (runBackup) {
             logger.trace("Parsing flags for backup mode");
             isBackup = true;
 
-            if (!(hasHost && hasPort && hasUsername && hasPassword)) {
+            if (!(username != null && password != null && port != null && host != null)) {
                 printErrorMessage(options,
                         "All of the following options must be set for backup mode",
                         HOST_OPTION,
@@ -166,10 +172,6 @@ public class ApplicationFlags {
                         "File already exists, please specify %s to overwrite file contents",
                         OVERWRITE_OPTION);
             }
-            host = commandLine.getOptionValue(HOST_OPTION);
-            port = commandLine.getOptionValue(PORT_OPTION);
-            username = commandLine.getOptionValue(USERNAME_OPTION);
-            password = commandLine.getOptionValue(PASSWORD_OPTION);
             scaled = commandLine.hasOption(SCALE_OPTION);
             maskedColumn = commandLine.hasOption(MASKED_COLUMN_OPTION);
             /*
@@ -189,10 +191,6 @@ public class ApplicationFlags {
                 return;
             }
 
-            host = hasHost ? commandLine.getOptionValue(HOST_OPTION) : null;
-            port = hasPort ? commandLine.getOptionValue(PORT_OPTION) : null;
-            username = hasUsername ? commandLine.getOptionValue(USERNAME_OPTION) : null;
-            password = hasPassword ? commandLine.getOptionValue(PASSWORD_OPTION) : null;
             replace = commandLine.hasOption(REPLACE_OPTION);
 
             if (commandLine.hasOption(API_PATH_OPTION)) {
@@ -210,12 +208,28 @@ public class ApplicationFlags {
      * Prints an error message and lists any arguments that are a part of the problem
      */
     private static void printErrorMessage(Options options, String formated, String... args) throws InputException {
-        String error = String.format(formated, args);
+        String error = String.format(formated, (Object[]) args);
         logger.error(error);
         for (String arg : args) {
             logger.info(options.getOption(arg).getDescription());
         }
         throw new InputException(error);
+    }
+
+    /*
+     * Gets the value for the given option. If a flag for this option is set, return that flag, otherwise if an
+     * environment variable for this flag is set, return that. Otherwise, return null.
+     */
+    private static String getValue(String envVariableName, String argOption, CommandLine commandLine) {
+        if (commandLine.hasOption(argOption)) {
+            return commandLine.getOptionValue(argOption);
+        }
+
+        if (System.getenv(envVariableName) != null) {
+            return System.getenv(envVariableName);
+        }
+
+        return null;
     }
 
 }

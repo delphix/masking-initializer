@@ -4,6 +4,12 @@ import com.delphix.masking.initializer.Utils;
 import com.delphix.masking.initializer.exception.ApiCallException;
 import com.delphix.masking.initializer.Utils;
 import com.delphix.masking.initializer.pojo.${ClassName};
+#foreach( $memberVariable in $memberVariables )
+#if ( $memberVariable.listType && $memberVariable.listType != "String" )
+import com.delphix.masking.initializer.pojo.${memberVariable.listType};
+#end
+#end
+import java.util.List;
 
 public class Post${ClassName} extends PostApiCall {
 
@@ -27,34 +33,48 @@ public class Post${ClassName} extends PostApiCall {
             if (!${className}.get${nameField}().equalsIgnoreCase(name)) {
                 continue;
             }
-            #if ($parentIdField)
+#if ($parentIdField)
             if (!${className}.get${parentIdField}().equals(parentId)) {
                 continue;
             }
-            #end
+#end
             id = ${className}.get${idField}().toString();
-            #if ( $putAllowed )
-                if (replace) {
-                    ${ClassName} tmp = Utils.getClassFromJson(body, ${ClassName}.class);
-                    tmp.set${idField}(${className}.get${idField}());
-                    Put${ClassName} put${ClassName} = new Put${ClassName}(tmp);
-                    apiCallDriver.makePutCall(put${ClassName});
-                }
-            #end
-
+#if ( $putAllowed )
+            if (replace) {
+                ${ClassName} tmp = Utils.getClassFromJson(body, ${ClassName}.class);
+                tmp.set${idField}(${className}.get${idField}());
+                Put${ClassName} put${ClassName} = new Put${ClassName}(tmp);
+                apiCallDriver.makePutCall(put${ClassName});
+            }
+#end
         }
     }
-    #if ($parentIdField)
+#if ($parentIdField)
     public Post${ClassName}(${ClassName} ${className}, Integer parentId) {
         ${className}.set${parentIdField}(parentId);
         this.parentId = parentId;
-    #else
+#else
     public Post${ClassName}(${ClassName} ${className}) {
-    #end
+#end
+
+#foreach( $memberVariable in $memberVariables )
+#if ($memberVariable.listType)
+        List<$memberVariable.listType> ${memberVariable.name} = ${className}.get${memberVariable.getUpperName()}();
+        ${className}.set${memberVariable.getUpperName()}(null);
+#end
+#end
+
         body = Utils.getJSONFromClass(${className});
         name = ${className}.get${nameField}();
-        #if ( $isMultiPart )
-            isMultiPart = ${isMultiPart};
-        #end
+#if ( $isMultiPart )
+        isMultiPart = ${isMultiPart};
+#end
+
+#foreach( $memberVariable in $memberVariables )
+#if ($memberVariable.listType)
+        ${className}.set${memberVariable.getUpperName()}(${memberVariable.name});
+#end
+#end
+
     }
 }

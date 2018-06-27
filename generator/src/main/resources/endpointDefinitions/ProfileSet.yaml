@@ -14,7 +14,7 @@ memberVariables:
   - name: createdTime
     type: String
   - name: description
-    type: Boolean
+    type: String
   - name: profileExpressions
     type: list
     listType: ProfileExpression
