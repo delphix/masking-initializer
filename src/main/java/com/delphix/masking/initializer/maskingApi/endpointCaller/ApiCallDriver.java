@@ -147,11 +147,8 @@ public class ApiCallDriver {
         logger.debug("Request Body: {}", jsonBody);
 
         StringEntity stringEntity;
-        try {
-            stringEntity = new StringEntity(jsonBody);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8);
+
         HttpPut httpPut = new HttpPut(url);
         httpPut.setEntity(stringEntity);
 
