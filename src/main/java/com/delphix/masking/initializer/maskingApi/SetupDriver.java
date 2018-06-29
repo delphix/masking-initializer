@@ -298,7 +298,9 @@ public class SetupDriver {
 
     private void handleExportObjectFiles(List<String> exportObjectFiles) throws ApiCallException, IOException {
         for (String filename : exportObjectFiles) {
-            ExportObject exportObject = Utils.getClassFromFile(baseFolder.resolve(filename + JSON_EXTENSION),
+            Path exportObjectFilePath = baseFolder.resolve(filename + JSON_EXTENSION);
+            logger.info("Reading from file: " + exportObjectFilePath);
+            ExportObject exportObject = Utils.getClassFromFile(exportObjectFilePath,
                     ExportObject.class);
             PostImportObject postImportObject = new PostImportObject(exportObject, replace);
             apiCallDriver.makePostCall(postImportObject);
@@ -371,8 +373,10 @@ public class SetupDriver {
 
             if (application.getEnvironmentFiles() != null) {
                 for (String environmentFile : application.getEnvironmentFiles()) {
-                    Environment environment = Utils.getClassFromFile(baseFolder.resolve(environmentFile +
-                            JSON_EXTENSION), Environment.class);
+                    Path envFilePath = baseFolder.resolve(environmentFile +
+                            JSON_EXTENSION);
+                    logger.info("Reading from: " + envFilePath);
+                    Environment environment = Utils.getClassFromFile(envFilePath, Environment.class);
                     handleEnv(environment, application.getApplicationName());
                 }
             }
