@@ -1,5 +1,23 @@
 package com.delphix.masking.initializer.maskingApi;
 
+import static com.delphix.masking.initializer.Constants.BASE_FILE;
+import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
+import static com.delphix.masking.initializer.Constants.MASKING;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.delphix.masking.initializer.ApplicationFlags;
 import com.delphix.masking.initializer.Utils;
 import com.delphix.masking.initializer.exception.ApiCallException;
@@ -27,6 +45,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.PostProfileExpr
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostProfileSet;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostProfilingJob;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostTableMetadata;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PostUser;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PutColumnMetadata;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PutFileFieldMetadata;
 import com.delphix.masking.initializer.pojo.Application;
@@ -47,23 +66,7 @@ import com.delphix.masking.initializer.pojo.ProfileExpression;
 import com.delphix.masking.initializer.pojo.ProfileSet;
 import com.delphix.masking.initializer.pojo.ProfilingJob;
 import com.delphix.masking.initializer.pojo.TableMetadata;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.delphix.masking.initializer.Constants.BASE_FILE;
-import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
-import static com.delphix.masking.initializer.Constants.MASKING;
+import com.delphix.masking.initializer.pojo.User;
 
 public class SetupDriver {
 
@@ -196,6 +199,10 @@ public class SetupDriver {
                 handleDomains(maskingSetup.getDomains());
             }
 
+            if (maskingSetup.getUsers() != null) {
+                handleUsers(maskingSetup.getUsers());
+            }
+
             Map<String, Integer> profileExpressionMap = null;
             if (maskingSetup.getProfileExpressions() != null) {
                 profileExpressionMap = handleProfilerExpressions(maskingSetup.getProfileExpressions());
@@ -310,6 +317,12 @@ public class SetupDriver {
     private void handleDomains(List<Domain> domains) throws ApiCallException {
         for (Domain domain : domains) {
             apiCallDriver.makePostCall(new PostDomain(domain));
+        }
+    }
+
+    private void handleUsers(List<User> users) throws ApiCallException {
+        for (User user : users) {
+            apiCallDriver.makePostCall(new PostUser(user));
         }
     }
 

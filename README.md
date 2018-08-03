@@ -22,6 +22,7 @@ of the following objects.
  * Syncable Objects
  * File formats
  * File field metadata
+ * Users
 
 # Version
 
@@ -84,6 +85,8 @@ The following flags are available to help run this tool.
  level to be skipped. This means that if a table no longer exists in a database then instead
  of the whole setup failing, that table will be skipped. Similar to columns missing from tables.
  This flag is only used in setup mode.
+ * `-R` when running in backup mode, redacts user information (first name, last name, email address)
+ and replaces with `REDACTED`.
 
  The `-f` flag is always required and one and only one of `-s` or `-b` must be provided.
 
@@ -170,13 +173,13 @@ to restore a masking application to the configuration specified in the `yaml` fi
 
 # Password Limitations
 
-One limitation of the API is that it does not return database or SFTP server passwords.
+One limitation of the API is that it does not return database, user, or SFTP server passwords.
 This is done for security purposes. This means the backup file does not contain the
-database or SFTP server passwords. In order to completely restore from a backup file, you
+database, user, or SFTP server passwords. In order to completely restore from a backup file, you
 must do the following.
 
-Manually open up the backup file and fill in all password fields. They are
-tagged with `DATABASE_PASSWORD` and `SFTP_PASSWORD` so that they can be easily identified.
+Manually open up the backup file and fill in all password fields. They are tagged with
+`DATABASE_PASSWORD`, `USER_PASSWORD` and `SFTP_PASSWORD` so that they can be easily identified.
 
 # File Masking
 

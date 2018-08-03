@@ -39,6 +39,7 @@ public class ApplicationFlags {
     private static final String MASKED_COLUMN_OPTION = "m";
     private static final String LOG_LEVEL_OPTION = "l";
     private static final String IGNORE_ERRORS = "i";
+    private static final String REDACT_USER_INFO = "R";
     private static final String AUTHTOKEN_OPTION = "t";
 
     private static final String MASKING_USER = "MASKING_USER";
@@ -64,6 +65,8 @@ public class ApplicationFlags {
     Boolean overwrite;
     @Getter
     Boolean global;
+    @Getter
+    Boolean redactUserInfo;
     @Getter
     Boolean sync;
     @Getter
@@ -100,6 +103,7 @@ public class ApplicationFlags {
         options.addOption(MASKED_COLUMN_OPTION, false, "Only backup masked columns");
         options.addOption(LOG_LEVEL_OPTION, true, "Level of logging to use");
         options.addOption(IGNORE_ERRORS, false, "Specifies that errors should be ignored");
+        options.addOption(REDACT_USER_INFO, false, "Specifies that user info should be redacted");
         options.addOption(AUTHTOKEN_OPTION, true, "Authorization token");
 
         // Read in the command line options and parse them
@@ -190,6 +194,7 @@ public class ApplicationFlags {
              */
             global = commandLine.hasOption(GLOBAL_OPTION);
             sync = commandLine.hasOption(ENGINE_SYNC_OPTION);
+            redactUserInfo = commandLine.hasOption(REDACT_USER_INFO);
 
         } else {
             logger.trace("Parsing flags for setup mode");

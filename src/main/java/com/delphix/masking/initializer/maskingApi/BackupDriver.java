@@ -1,5 +1,25 @@
 package com.delphix.masking.initializer.maskingApi;
 
+import static com.delphix.masking.initializer.Constants.BASE_FILE;
+import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
+import static com.delphix.masking.initializer.Constants.MASKING;
+import static com.delphix.masking.initializer.Utils.getFileName;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+
 import com.delphix.masking.initializer.ApplicationFlags;
 import com.delphix.masking.initializer.Utils;
 import com.delphix.masking.initializer.exception.ApiCallException;
@@ -21,6 +41,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfileSets;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfilingJobs;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetSyncableObjects;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetTableMetadatas;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetUsers;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostExportObject;
 import com.delphix.masking.initializer.pojo.Application;
 import com.delphix.masking.initializer.pojo.ColumnMetadata;
@@ -40,25 +61,7 @@ import com.delphix.masking.initializer.pojo.ProfileExpression;
 import com.delphix.masking.initializer.pojo.ProfileSet;
 import com.delphix.masking.initializer.pojo.ProfilingJob;
 import com.delphix.masking.initializer.pojo.TableMetadata;
-import org.apache.commons.io.FileUtils;
-
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.delphix.masking.initializer.Constants.BASE_FILE;
-import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
-import static com.delphix.masking.initializer.Constants.MASKING;
-import static com.delphix.masking.initializer.Utils.getFileName;
+import com.delphix.masking.initializer.pojo.User;
 
 /**
  * This class is responsible for backing up a masking engine. Based on the provided input it can back up
@@ -68,6 +71,8 @@ public class BackupDriver {
 
     private static String DATABASE_PASSWORD = "DATABASE_PASSWORD";
     private static String SFTP_PASSWORD = "SFTP_PASSWORD";
+    private static String USER_PASSWORD = "USER_PASSWORD";
+    private static String REDACTED = "REDACTED";
 
     private ApiCallDriver apiCallDriver;
 
@@ -162,6 +167,7 @@ public class BackupDriver {
         if (applicationFlags.getGlobal()) {
             backupProfiles();
             backupDomains();
+            backupUsers();
         } else {
             /*
              * If we are not backing up profiler sets, we still need a map of profiler sets id -> names so that we can
@@ -314,6 +320,19 @@ public class BackupDriver {
         }
     }
 
+    private void backupUsers() throws ApiCallException {
+        GetUsers getUsers = new GetUsers();
+        apiCallDriver.makeGetCall(getUsers);
+
+        if (getUsers.getUsers() != null) {
+            ArrayList<User> users = new ArrayList<>();
+            for (User user : getUsers.getUsers()) {
+                users.add(handleUser(user));
+            }
+            maskingSetup.setUsers(users);
+        }
+    }
+
     /**
      * Back up all domains
      *
@@ -447,6 +466,18 @@ public class BackupDriver {
         }
 
         return environment;
+    }
+
+    private User handleUser(User user) {
+
+        user.setPassword(USER_PASSWORD);
+        if (applicationFlags.getRedactUserInfo()) {
+            user.setFirstName(REDACTED);
+            user.setLastName(REDACTED);
+            user.setEmail(REDACTED);
+        }
+
+        return user;
     }
 
     private DatabaseConnector handleDatabaseConnector(DatabaseConnector databaseConnector) {

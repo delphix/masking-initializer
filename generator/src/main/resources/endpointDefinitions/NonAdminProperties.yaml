@@ -1,0 +1,10 @@
+className: [non, Admin, Properties]
+generatePost: false
+generatePut: false
+generateGet: false
+memberVariables:
+  - name: roleId
+    type: Integer
+  - name: environmentIds
+    type: List
+    listType: Integer
