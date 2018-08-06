@@ -53,6 +53,14 @@ public class ApiCallDriver {
         login();
     }
 
+    public ApiCallDriver(String host, String authToken, String port, String apiPath, boolean replace) {
+        this.host = host;
+        this.port = port;
+        this.apiPath = apiPath;
+        this.Authorization = authToken;
+        this.replace = replace;
+    }
+
     private void login() throws ApiCallException {
         LoginApiBody loginApiBody = new LoginApiBody(username, password);
         String responseJson = makePostCall(LOGIN_PATH, Utils.getJSONFromClass(loginApiBody));

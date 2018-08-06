@@ -39,11 +39,13 @@ public class ApplicationFlags {
     private static final String MASKED_COLUMN_OPTION = "m";
     private static final String LOG_LEVEL_OPTION = "l";
     private static final String IGNORE_ERRORS = "i";
+    private static final String AUTHTOKEN_OPTION = "t";
 
     private static final String MASKING_USER = "MASKING_USER";
     private static final String MASKING_PASSWORD = "MASKING_PASSWORD";
     private static final String MASKING_HOST = "MASKING_HOST";
     private static final String MASKING_PORT = "MASKING_PORT";
+    private static final String AUTH_TOKEN = "AUTH_TOKEN";
 
 
     @Getter
@@ -74,6 +76,8 @@ public class ApplicationFlags {
     boolean isBackup = false;
     @Getter
     boolean ignoreErrors = false;
+    @Getter
+    String authToken;
 
     public ApplicationFlags(String args[]) throws ParseException, InputException {
 
@@ -96,6 +100,7 @@ public class ApplicationFlags {
         options.addOption(MASKED_COLUMN_OPTION, false, "Only backup masked columns");
         options.addOption(LOG_LEVEL_OPTION, true, "Level of logging to use");
         options.addOption(IGNORE_ERRORS, false, "Specifies that errors should be ignored");
+        options.addOption(AUTHTOKEN_OPTION, true, "Authorization token");
 
         // Read in the command line options and parse them
         CommandLineParser commandLineParser = new DefaultParser();
@@ -149,14 +154,19 @@ public class ApplicationFlags {
         password = getValue(MASKING_PASSWORD, PASSWORD_OPTION, commandLine);
         port = getValue(MASKING_PORT, PORT_OPTION, commandLine);
         host = getValue(MASKING_HOST, HOST_OPTION, commandLine);
+        authToken = getValue(AUTH_TOKEN, AUTHTOKEN_OPTION, commandLine);
 
 
-        // Backup requires host/port/username/password being all set
+        /*
+         * Backup requires host/port/username/password being all set. An authtoken can be provided instead of a username
+         * and password.
+         */
+
         if (runBackup) {
             logger.trace("Parsing flags for backup mode");
             isBackup = true;
 
-            if (!(username != null && password != null && port != null && host != null)) {
+            if (((username == null || password == null) && authToken == null) || port == null || host == null) {
                 printErrorMessage(options,
                         "All of the following options must be set for backup mode",
                         HOST_OPTION,
