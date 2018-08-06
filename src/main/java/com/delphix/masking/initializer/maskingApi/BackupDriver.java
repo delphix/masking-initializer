@@ -97,13 +97,21 @@ public class BackupDriver {
         this.applicationFlags = applicationFlags;
 
         // Initialize the api call driver to point to the correct engine
-        apiCallDriver = new ApiCallDriver(
-                applicationFlags.getHost(),
-                applicationFlags.getUsername(),
-                applicationFlags.getPassword(),
-                applicationFlags.getPort(),
-                applicationFlags.getApiPath(),
-                applicationFlags.getReplace());
+        if (applicationFlags.getAuthToken() == null) {
+            apiCallDriver = new ApiCallDriver(
+                    applicationFlags.getHost(),
+                    applicationFlags.getUsername(),
+                    applicationFlags.getPassword(),
+                    applicationFlags.getPort(),
+                    applicationFlags.getApiPath(),
+                    applicationFlags.getReplace());
+        } else {
+            apiCallDriver = new ApiCallDriver(                    applicationFlags.getHost(),
+                    applicationFlags.getAuthToken(),
+                    applicationFlags.getPort(),
+                    applicationFlags.getApiPath(),
+                    applicationFlags.getReplace());
+        }
 
         scaled = applicationFlags.getScaled();
         isMasked = applicationFlags.getMaskedColumn();
@@ -115,6 +123,7 @@ public class BackupDriver {
         maskingSetup.setApiPath(applicationFlags.getApiPath());
         maskingSetup.setUsername(applicationFlags.getUsername());
         maskingSetup.setPassword(applicationFlags.getPassword());
+        maskingSetup.setAuthToken(applicationFlags.getAuthToken());
         maskingSetup.setScaled(scaled);
         // Set default incase path is null
         if (maskingSetup.getApiPath() == null) {

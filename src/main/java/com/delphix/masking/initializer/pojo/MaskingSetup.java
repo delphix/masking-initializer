@@ -12,6 +12,7 @@ public class MaskingSetup {
     private String apiPath;
     private String username;
     private String password;
+    private String authToken;
 
     private Boolean scaled;
 
