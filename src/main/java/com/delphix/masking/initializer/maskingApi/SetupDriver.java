@@ -118,11 +118,16 @@ public class SetupDriver {
             if (applicationFlags.getApiPath() != null) {
                 maskingSetup.setApiPath(applicationFlags.getApiPath());
             }
-            if (applicationFlags.getUsername() != null) {
-                maskingSetup.setUsername(applicationFlags.getUsername());
-            }
-            if (applicationFlags.getPassword() != null) {
-                maskingSetup.setPassword(applicationFlags.getPassword());
+
+            if (applicationFlags.getAuthToken() != null) {
+                maskingSetup.setAuthToken(applicationFlags.getAuthToken());
+            } else {
+                if (applicationFlags.getUsername() != null) {
+                    maskingSetup.setUsername(applicationFlags.getUsername());
+                }
+                if (applicationFlags.getPassword() != null) {
+                    maskingSetup.setPassword(applicationFlags.getPassword());
+                }
             }
             this.replace = applicationFlags.getReplace();
             this.ignoreErrors = applicationFlags.isIgnoreErrors();
@@ -147,14 +152,22 @@ public class SetupDriver {
             if (maskingSetup.getScaled() == null) {
                 maskingSetup.setScaled(false);
             }
-
-            apiCallDriver = new ApiCallDriver(
-                    maskingSetup.getHost(),
-                    maskingSetup.getUsername(),
-                    maskingSetup.getPassword(),
-                    maskingSetup.getPort(),
-                    maskingSetup.getApiPath(),
-                    replace);
+            if (maskingSetup.getAuthToken() == null) {
+                apiCallDriver = new ApiCallDriver(
+                        maskingSetup.getHost(),
+                        maskingSetup.getUsername(),
+                        maskingSetup.getPassword(),
+                        maskingSetup.getPort(),
+                        maskingSetup.getApiPath(),
+                        replace);
+            } else {
+                apiCallDriver = new ApiCallDriver(
+                        maskingSetup.getHost(),
+                        maskingSetup.getAuthToken(),
+                        maskingSetup.getPort(),
+                        maskingSetup.getApiPath(),
+                        replace);
+            }
 
         } catch (ApiCallException e) {
             logger.error(e.getMessage());
