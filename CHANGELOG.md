@@ -11,6 +11,13 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [0.7.0] - 2018-08-17
+
+### Fixed
+Fix for issue #17 - Allow auth tokens on the command line
+Fix for issue #20 - Add UTF-8 character support for PUT requests
+Fix for issue #21 - Add better logging around which file is being read
+
 ## [0.6.0] - 2018-06-19
 
 ### Added
