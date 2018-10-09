@@ -25,6 +25,7 @@ public class MaskingSetup {
     private List<Domain> domains;
     private List<ExportObject> exportObjects;
     private List<String> exportObjectFiles;
+    private List<User> users;
 
 }
 
