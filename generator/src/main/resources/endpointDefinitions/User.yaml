@@ -1,0 +1,26 @@
+className: [user]
+endpointPath: users
+nameField: UserName
+idField: UserId
+generatePut: false
+memberVariables:
+  - name: userId
+    type: Integer
+  - name: userName
+    type: String
+  - name: password
+    type: String
+  - name: firstName
+    type: String
+  - name: lastName
+    type: String
+  - name: email
+    type: String
+  - name: isAdmin
+    type: Boolean
+  - name: showWelcome
+    type: Boolean
+  - name: isLocked
+    type: Boolean
+  - name: nonAdminProperties
+    type: NonAdminProperties
