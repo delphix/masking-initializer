@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 
 import com.delphix.masking.initializer.ApplicationFlags;
@@ -111,7 +112,8 @@ public class BackupDriver {
                     applicationFlags.getApiPath(),
                     applicationFlags.getReplace());
         } else {
-            apiCallDriver = new ApiCallDriver(                    applicationFlags.getHost(),
+            apiCallDriver = new ApiCallDriver(
+                    applicationFlags.getHost(),
                     applicationFlags.getAuthToken(),
                     applicationFlags.getPort(),
                     applicationFlags.getApiPath(),
@@ -220,33 +222,45 @@ public class BackupDriver {
      */
     private void backupSync() throws ApiCallException {
 
-        GetSyncableObjects getSyncableObjects = new GetSyncableObjects();
-        apiCallDriver.makeGetCall(getSyncableObjects);
+        ImmutableList<String> algorithmTypes = ImmutableList.of(
+                "BINARYLOOKUP",
+                "DATE_SHIFT",
+                "LOOKUP",
+                "MAPPLET",
+                "KEY",
+                "SEGMENT",
+                "TOKENIZATION");
+
+        ArrayList<ExportObjectMetadata> gottenSyncObjects = new ArrayList<>();
+
+        algorithmTypes.forEach(algType -> {
+            GetSyncableObjects getSyncableObjects = new GetSyncableObjects();
+            getSyncableObjects.setObjectType(algType);
+            apiCallDriver.makeGetCall(getSyncableObjects);
+            if (getSyncableObjects.getExportResponseMetadata() != null) {
+                gottenSyncObjects.addAll(getSyncableObjects.getExportResponseMetadata());
+            }
+        });
 
         ArrayList<ExportObject> exportObjects = new ArrayList();
         ArrayList<String> exportObjectFiles = new ArrayList();
 
-        if (getSyncableObjects.getExportResponseMetadata() != null) {
-            ExportObjectMetadata[] exportObjectMetadatas = new ExportObjectMetadata[getSyncableObjects
-                    .getExportResponseMetadata().size()];
-            for (ExportObjectMetadata exportObjectMetadata : getSyncableObjects.getExportResponseMetadata().toArray
-                    (exportObjectMetadatas)) {
-                PostExportObject postExportObject = new PostExportObject(new
-                        ExportObjectMetadata[]{exportObjectMetadata});
-                apiCallDriver.makePostCall(postExportObject);
+        for (ExportObjectMetadata exportObjectMetadata : gottenSyncObjects) {
+            PostExportObject postExportObject = new PostExportObject(new
+                    ExportObjectMetadata[]{exportObjectMetadata});
+            apiCallDriver.makePostCall(postExportObject);
 
-                if (scaled) {
-                    String fileName = getFileName("sync");
-                    Utils.writeClassToFile(baseFolder.resolve(fileName + JSON_EXTENSION), postExportObject
-                            .getExportObject());
-                    exportObjectFiles.add(fileName);
-                } else {
-                    exportObjects.add(postExportObject.getExportObject());
-                }
+            if (scaled) {
+                String fileName = getFileName("sync");
+                Utils.writeClassToFile(baseFolder.resolve(fileName + JSON_EXTENSION), postExportObject
+                        .getExportObject());
+                exportObjectFiles.add(fileName);
+            } else {
+                exportObjects.add(postExportObject.getExportObject());
             }
-            maskingSetup.setExportObjects(exportObjects);
-            maskingSetup.setExportObjectFiles(exportObjectFiles);
         }
+        maskingSetup.setExportObjects(exportObjects);
+        maskingSetup.setExportObjectFiles(exportObjectFiles);
 
     }
 
