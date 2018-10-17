@@ -687,7 +687,7 @@ public class BackupDriver {
         DatabaseConnector dbConn = getDatabaseConnectors
                 .getDatabaseConnectors()
                 .stream()
-                .filter(conn -> conn.getDatabaseConnectorId() == connectorId)
+                .filter(conn -> conn.getDatabaseConnectorId().equals(connectorId))
                 .findFirst()
                 .orElse(null);
 
@@ -697,7 +697,7 @@ public class BackupDriver {
             FileConnector filConn = getFileConnectors
                     .getFileConnectors()
                     .stream()
-                    .filter(conn -> conn.getFileConnectorId() == connectorId)
+                    .filter(conn -> conn.getFileConnectorId().equals(connectorId))
                     .findFirst()
                     .orElseThrow(RuntimeException::new);
 
@@ -720,7 +720,7 @@ public class BackupDriver {
         Environment sourceEnvironment = getEnvironments
                 .getEnvironments()
                 .stream()
-                .filter(env -> env.getEnvironmentId() == envId)
+                .filter(env -> env.getEnvironmentId().equals(envId))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
 
