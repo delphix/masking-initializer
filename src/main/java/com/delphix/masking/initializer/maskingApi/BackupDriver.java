@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetExecutionComponents;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetExecutions;
+import com.delphix.masking.initializer.pojo.Execution;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 
@@ -188,6 +191,11 @@ public class BackupDriver {
             backupSync();
         }
 
+        // Back up executions if the user asked for them. There is no restoring these object, they are only for reference
+        if (applicationFlags.getExecution()) {
+            backupExecution();
+        }
+
         // Masking jobs are always backed up regardless of provided flags
         backupApplications();
 
@@ -213,6 +221,33 @@ public class BackupDriver {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Backup the executions
+     */
+    private void backupExecution() {
+
+        GetExecutions getExecutions = new GetExecutions();
+        apiCallDriver.makeGetCall(getExecutions);
+
+        if (getExecutions.getExecutions() == null) {
+            return;
+        }
+        getExecutions.getExecutions().forEach(this::handleExecution);
+        maskingSetup.setExecutions(getExecutions.getExecutions());
+    }
+
+    private void handleExecution(Execution execution) {
+
+        execution.setExecutionComponent(new ArrayList<>());
+        GetExecutionComponents getExecutionComponents = new GetExecutionComponents();
+        apiCallDriver.makeGetCall(getExecutionComponents);
+        if (getExecutionComponents.getExecutionComponents() == null) {
+            return;
+        }
+        execution.setExecutionComponent(getExecutionComponents.getExecutionComponents());
+        return;
     }
 
     /**

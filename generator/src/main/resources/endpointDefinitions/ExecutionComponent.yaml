@@ -1,0 +1,24 @@
+className: [execution, Component]
+endpointPath: execution-components
+nameField: componentName
+idField: executionComponentId
+generatePost: false
+generatePut: false
+generateGet: true
+memberVariables:
+- name: executionComponentId
+  type: Integer
+- name: componentName
+  type: String
+- name: executionId
+  type: Integer
+- name: status
+  type: String
+- name: rowsMasked
+  type: Integer
+- name: rowsTotal
+  type: Integer
+- name: startTime
+  type: String
+- name: endTime
+  type: String

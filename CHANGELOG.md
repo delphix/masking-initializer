@@ -11,6 +11,8 @@ Fix for issue #14 - Add user object to backup/restore.
 ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
+Fix for issue #24 - Running in backup mode for 5.3 engine with -e option causes exception
+Fix for issue #27 - Add ability to back executions
 
 ## [0.7.0] - 2018-08-17
 
