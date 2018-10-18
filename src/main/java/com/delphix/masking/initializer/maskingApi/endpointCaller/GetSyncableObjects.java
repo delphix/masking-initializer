@@ -4,6 +4,7 @@ import com.delphix.masking.initializer.Constants;
 import com.delphix.masking.initializer.Utils;
 import com.delphix.masking.initializer.pojo.ExportObjectMetadata;
 import com.delphix.masking.initializer.pojo.ExportObjectMetadataList;
+import lombok.Setter;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,8 @@ public class GetSyncableObjects extends GetApiCall {
     private ExportObjectMetadataList exportObjectMetadataList;
 
     private ArrayList exportObjectMetadataArray;
+
+    @Setter String objectType;
 
 
     @Override
@@ -33,6 +36,11 @@ public class GetSyncableObjects extends GetApiCall {
     @Override
     protected String getEndpoint(int pageNumber) {
         String path = GET_PROFILE_EXPRESSION_PATH + "?page_size=" + Constants.PAGE_SIZE + "&&page_number=" + pageNumber;
+        if (objectType != null) {
+        path += "&&object_type=" + objectType;
+
+        }
+
         return path;
     }
 

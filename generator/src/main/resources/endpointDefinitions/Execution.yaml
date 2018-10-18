@@ -1,0 +1,28 @@
+className: [execution]
+endpointPath: executions
+idField: executionId
+generatePost: false
+generatePut: false
+generateGet: true
+memberVariables:
+- name: executionId
+  type: Integer
+- name: jobId
+  type: Integer
+- name: sourceConnectorId
+  type: Integer
+- name: targetConnectorId
+  type: Integer
+- name: status
+  type: String
+- name: rowsMasked
+  type: Integer
+- name: rowsTotal
+  type: Integer
+- name: startTime
+  type: String
+- name: endTime
+  type: String
+- name: executionComponent
+  type: List
+  listType: ExecutionComponent

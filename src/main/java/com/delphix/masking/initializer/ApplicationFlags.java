@@ -41,6 +41,7 @@ public class ApplicationFlags {
     private static final String IGNORE_ERRORS = "i";
     private static final String REDACT_USER_INFO = "R";
     private static final String AUTHTOKEN_OPTION = "t";
+    private static final String EXECUTIONS_OPTION = "x";
 
     private static final String MASKING_USER = "MASKING_USER";
     private static final String MASKING_PASSWORD = "MASKING_PASSWORD";
@@ -81,6 +82,8 @@ public class ApplicationFlags {
     boolean ignoreErrors = false;
     @Getter
     String authToken;
+    @Getter
+    Boolean execution;
 
     public ApplicationFlags(String args[]) throws ParseException, InputException {
 
@@ -105,6 +108,8 @@ public class ApplicationFlags {
         options.addOption(IGNORE_ERRORS, false, "Specifies that errors should be ignored");
         options.addOption(REDACT_USER_INFO, false, "Specifies that user info should be redacted");
         options.addOption(AUTHTOKEN_OPTION, true, "Authorization token");
+        options.addOption(EXECUTIONS_OPTION, false, "Specifies that execution objects should be backed up");
+
 
         // Read in the command line options and parse them
         CommandLineParser commandLineParser = new DefaultParser();
@@ -195,6 +200,7 @@ public class ApplicationFlags {
             global = commandLine.hasOption(GLOBAL_OPTION);
             sync = commandLine.hasOption(ENGINE_SYNC_OPTION);
             redactUserInfo = commandLine.hasOption(REDACT_USER_INFO);
+            execution = commandLine.hasOption(EXECUTIONS_OPTION);
 
         } else {
             logger.trace("Parsing flags for setup mode");
