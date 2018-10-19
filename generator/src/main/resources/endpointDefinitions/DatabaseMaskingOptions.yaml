@@ -9,11 +9,11 @@ memberVariables:
     type: Boolean
   - name: commitSize
     type: Integer
-  - name: dropConstraints
+  - name: disableTriggers
     type: Boolean
   - name: dropIndexes
     type: Boolean
-  - name: dropTriggers
+  - name: disableConstraints
     type: Boolean
   - name: numOutputThreadsPerStream
     type: Integer
