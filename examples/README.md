@@ -10,7 +10,7 @@ look at the json files that contain the swagger schema to figure out model setup
 
 # Examples
 * [Template](template.yaml)
-* [Oracle database](oracle_example.yaml)
+* [Oracle database](oracle.yaml)
 * [Only application and env](onlyAppEnv.yaml)
 * [MSSQL](mssql.yaml)
 * [Delimited file](delmFile.yaml)
