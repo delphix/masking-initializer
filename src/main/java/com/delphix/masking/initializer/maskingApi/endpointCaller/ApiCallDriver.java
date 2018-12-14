@@ -8,29 +8,36 @@ import com.delphix.masking.initializer.pojo.apiResponse.LoginApiResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
 public class ApiCallDriver {
 
-    private static final String URL = "http://%s:%s/%s%s";
+    private static final String URL = "%s://%s:%s/%s%s";
     private static final String BASE_PATH = "%s/api/";
     private static final String LOGIN_PATH = "login";
     Logger logger = LogManager.getLogger(ApiCallDriver.class);
@@ -41,8 +48,9 @@ public class ApiCallDriver {
     private String password;
     private String Authorization;
     private boolean replace;
+    private boolean sslEnabled;
 
-    public ApiCallDriver(String host, String username, String password, String port, String apiPath, boolean replace)
+    public ApiCallDriver(String host, String username, String password, String port, String apiPath, boolean replace, boolean sslEnabled)
             throws ApiCallException {
         this.host = host;
         this.port = port;
@@ -50,15 +58,17 @@ public class ApiCallDriver {
         this.username = username;
         this.password = password;
         this.replace = replace;
+        this.sslEnabled = sslEnabled;
         login();
     }
 
-    public ApiCallDriver(String host, String authToken, String port, String apiPath, boolean replace) {
+    public ApiCallDriver(String host, String authToken, String port, String apiPath, boolean replace, boolean sslEnabled) {
         this.host = host;
         this.port = port;
         this.apiPath = apiPath;
         this.Authorization = authToken;
         this.replace = replace;
+        this.sslEnabled = sslEnabled;
     }
 
     private void login() throws ApiCallException {
@@ -103,7 +113,7 @@ public class ApiCallDriver {
     }
 
     private String makeGetApiCall(String endpointPath) throws ApiCallException {
-        String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
         logger.info(url + " GET");
 
         HttpGet httpGet = new HttpGet(url);
@@ -115,7 +125,7 @@ public class ApiCallDriver {
     private String makeMultiPartPostCall(String endpointPath, HttpEntity httpEntity) throws ApiCallException,
             IOException {
 
-        String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
         logger.info(url);
 
         HttpPost httpPost = new HttpPost(url);
@@ -126,7 +136,7 @@ public class ApiCallDriver {
     }
 
     private String makePostCall(String endpointPath, String jsonBody) throws ApiCallException {
-        String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
         logger.info(url + " POST");
         logger.debug("Request Body: {}", jsonBody);
 
@@ -141,7 +151,7 @@ public class ApiCallDriver {
     }
 
     private String makePutCall(String endpointPath, String jsonBody) throws ApiCallException {
-        String url = String.format(URL, host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
 
         logger.info(url + " PUT");
         logger.debug("Request Body: {}", jsonBody);
@@ -173,7 +183,18 @@ public class ApiCallDriver {
             ApiCallException {
 
         try {
-            HttpClient httpClient = HttpClientBuilder.create().build();
+
+            CloseableHttpClient httpClient;
+            if (sslEnabled) {
+                SSLContext sslContext = new SSLContextBuilder()
+                        .loadTrustMaterial(null, (certificate, authType) -> true).build();
+                httpClient = HttpClients.custom()
+                        .setSSLContext(sslContext)
+                        .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                        .build();
+            } else {
+                httpClient = HttpClientBuilder.create().build();
+            }
 
             setHeaders(httpRequestBase, isMultiPart);
             HttpResponse httpResponse = httpClient.execute(httpRequestBase);
@@ -181,10 +202,15 @@ public class ApiCallDriver {
             InputStreamReader inputStreamReader = new InputStreamReader(httpResponse.getEntity().getContent());
             String responseBody = IOUtils.toString(inputStreamReader);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            JsonParser jp = new JsonParser();
-            JsonElement je = jp.parse(responseBody);
-            String prettyJsonString = gson.toJson(je);
+            String prettyJsonString;
+            try {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                JsonParser jp = new JsonParser();
+                JsonElement je = jp.parse(responseBody);
+                prettyJsonString = gson.toJson(je);
+            } catch (JsonParseException e) {
+                throw new ApiCallException("Unable to parse the response into JSON: " + responseBody, e);
+            }
             logger.debug("Response body: {}", prettyJsonString);
 
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
@@ -193,10 +219,12 @@ public class ApiCallDriver {
                         url, apiErrorMessage.getErrorMessage());
             }
             return responseBody;
-        } catch (IOException e) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
             throw new ApiCallException(url, e);
         }
     }
 
-
+    private String getProtocol() {
+        return sslEnabled ? "https": "http";
+    }
 }

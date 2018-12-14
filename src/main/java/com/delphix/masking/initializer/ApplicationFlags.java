@@ -42,6 +42,7 @@ public class ApplicationFlags {
     private static final String REDACT_USER_INFO = "R";
     private static final String AUTHTOKEN_OPTION = "t";
     private static final String EXECUTIONS_OPTION = "x";
+    private static final String SSL_OPTION = "S";
 
     private static final String MASKING_USER = "MASKING_USER";
     private static final String MASKING_PASSWORD = "MASKING_PASSWORD";
@@ -84,6 +85,8 @@ public class ApplicationFlags {
     String authToken;
     @Getter
     Boolean execution;
+    @Getter
+    Boolean isSslEnabled;
 
     public ApplicationFlags(String args[]) throws ParseException, InputException {
 
@@ -109,6 +112,7 @@ public class ApplicationFlags {
         options.addOption(REDACT_USER_INFO, false, "Specifies that user info should be redacted");
         options.addOption(AUTHTOKEN_OPTION, true, "Authorization token");
         options.addOption(EXECUTIONS_OPTION, false, "Specifies that execution objects should be backed up");
+        options.addOption(SSL_OPTION, false, "Specifies that SSL should be used");
 
 
         // Read in the command line options and parse them
@@ -165,6 +169,7 @@ public class ApplicationFlags {
         host = getValue(MASKING_HOST, HOST_OPTION, commandLine);
         authToken = getValue(AUTH_TOKEN, AUTHTOKEN_OPTION, commandLine);
 
+        isSslEnabled = commandLine.hasOption(SSL_OPTION);
 
         /*
          * Backup requires host/port/username/password being all set. An authtoken can be provided instead of a username

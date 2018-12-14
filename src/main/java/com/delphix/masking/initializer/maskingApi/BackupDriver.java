@@ -113,14 +113,16 @@ public class BackupDriver {
                     applicationFlags.getPassword(),
                     applicationFlags.getPort(),
                     applicationFlags.getApiPath(),
-                    applicationFlags.getReplace());
+                    applicationFlags.getReplace(),
+                    applicationFlags.getIsSslEnabled());
         } else {
             apiCallDriver = new ApiCallDriver(
                     applicationFlags.getHost(),
                     applicationFlags.getAuthToken(),
                     applicationFlags.getPort(),
                     applicationFlags.getApiPath(),
-                    applicationFlags.getReplace());
+                    applicationFlags.getReplace(),
+                    applicationFlags.getIsSslEnabled());
         }
 
         scaled = applicationFlags.getScaled();

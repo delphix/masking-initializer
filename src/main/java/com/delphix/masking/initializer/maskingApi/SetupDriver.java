@@ -73,6 +73,7 @@ public class SetupDriver {
     Logger logger = LogManager.getLogger(SetupDriver.class);
 
     private ApiCallDriver apiCallDriver;
+    private ApplicationFlags applicationFlags;
     private MaskingSetup maskingSetup;
     private Path baseFolder;
     private boolean replace = false;
@@ -134,7 +135,7 @@ public class SetupDriver {
             }
             this.replace = applicationFlags.getReplace();
             this.ignoreErrors = applicationFlags.isIgnoreErrors();
-
+            this.applicationFlags = applicationFlags;
             init();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -162,14 +163,17 @@ public class SetupDriver {
                         maskingSetup.getPassword(),
                         maskingSetup.getPort(),
                         maskingSetup.getApiPath(),
-                        replace);
+                        replace,
+                        applicationFlags.getIsSslEnabled()
+                        );
             } else {
                 apiCallDriver = new ApiCallDriver(
                         maskingSetup.getHost(),
                         maskingSetup.getAuthToken(),
                         maskingSetup.getPort(),
                         maskingSetup.getApiPath(),
-                        replace);
+                        replace,
+                        applicationFlags.getIsSslEnabled());
             }
 
         } catch (ApiCallException e) {
