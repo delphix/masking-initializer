@@ -11,6 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [1.1.0] - 2018-12-14
+
+### Added
+Fix for issue #32 - Add SSL support
+
 ## [1.0.1] - 2018-10-19
 
 ### Fixed

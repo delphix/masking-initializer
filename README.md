@@ -26,7 +26,7 @@ of the following objects.
 
 # Version
 
-The current version is `1.0.1`. Please see the [Change log](CHANGELOG.md) for
+The current version is `1.1.0`. Please see the [Change log](CHANGELOG.md) for
 information on each version.
 
 The 1.X.X versions works with the 5.3.X.X version of the masking application.
