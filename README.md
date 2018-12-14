@@ -91,6 +91,8 @@ The following flags are available to help run this tool.
  This flag is only used in setup mode.
  * `-R` when running in backup mode, redacts user information (first name, last name, email address)
  and replaces with `REDACTED`.
+ * `-S` when using this tool with a masking application over SSL, supplying this flag is necessary. Note that no certificate
+ checks are done. All certificates are trusted.
 
  The `-f` flag is always required and one and only one of `-s` or `-b` must be provided.
 
