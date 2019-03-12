@@ -468,7 +468,7 @@ public class BackupDriver {
         ArrayList<Environment> environments = new ArrayList<>();
         ArrayList<String> environmentFiles = new ArrayList<>();
         for (Environment environment : getEnvironments.getEnvironments()) {
-            if (environment.getApplication().equalsIgnoreCase(application.getApplicationName())) {
+            if (environment.getApplicationId().equals(application.getApplicationId())) {
 
                 if (scaled) {
                     Environment env = handleEnv(environment);

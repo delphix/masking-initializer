@@ -1,9 +1,11 @@
 className: [application]
 endpointPath: applications
 nameField: ApplicationName
-idField: ApplicationName
+idField: ApplicationId
 generatePut: false
 memberVariables:
+  - name: applicationId
+    type: Integer
   - name: applicationName
     type: String
   - name: environments
