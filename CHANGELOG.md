@@ -11,6 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.0.0]
+
+### Fixed
+Fix for issue #39 - Masking initializer is no longer in sync with masking engine schema
+
 ## [1.1.0] - 2018-12-14
 
 ### Added

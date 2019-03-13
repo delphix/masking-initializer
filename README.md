@@ -26,11 +26,16 @@ of the following objects.
 
 # Version
 
-The current version is `1.1.0`. Please see the [Change log](CHANGELOG.md) for
+The current `2.X` version is `2.0.0`.
+
+The current `1.X` version is `1.1.0`.
+
+Please see the [Change log](CHANGELOG.md) for
 information on each version.
 
-The 1.X.X versions works with the 5.3.X.X version of the masking application.
-The 0.X.X versions works with the 5.2.X.X version of the masking application.
+The 2.X.X versions work with the 6.0.X.X versions of the masking application.
+The 1.X.X versions work with the 5.3.X.X versions of the masking application.
+The 0.X.X versions work with the 5.2.X.X versions of the masking application.
 There is no guarantee of forwards or backwards compatibility.
 
 # Install
