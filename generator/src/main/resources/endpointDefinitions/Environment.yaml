@@ -9,8 +9,8 @@ memberVariables:
     type: Boolean
   - name: environmentId
     type: Integer
-  - name: application
-    type: String
+  - name: applicationId
+    type: Integer
   - name: purpose
     type: String
   - name: databaseConnectors

@@ -394,18 +394,18 @@ public class SetupDriver {
                             JSON_EXTENSION);
                     logger.info("Reading from: " + envFilePath);
                     Environment environment = Utils.getClassFromFile(envFilePath, Environment.class);
-                    handleEnv(environment, application.getApplicationName());
+                    handleEnv(environment, application.getApplicationId());
                 }
             }
 
             if (application.getEnvironments() != null) {
-                handleEnvs(application.getEnvironments(), application.getApplicationName());
+                handleEnvs(application.getEnvironments(), application.getApplicationId());
             }
         }
     }
 
-    private void handleEnv(Environment environment, String appName) throws IOException, ApiCallException {
-        environment.setApplication(appName);
+    private void handleEnv(Environment environment, Integer appId) throws IOException, ApiCallException {
+        environment.setApplicationId(appId);
         PostEnvironment PostEnvironment = new PostEnvironment(environment);
         apiCallDriver.makePostCall(PostEnvironment);
         Integer envId = Integer.valueOf(PostEnvironment.getId());
@@ -420,9 +420,9 @@ public class SetupDriver {
         }
     }
 
-    private void handleEnvs(List<Environment> environments, String appName) throws IOException, ApiCallException {
+    private void handleEnvs(List<Environment> environments, Integer appId) throws IOException, ApiCallException {
         for (Environment environment : environments) {
-            handleEnv(environment, appName);
+            handleEnv(environment, appId);
         }
     }
 
