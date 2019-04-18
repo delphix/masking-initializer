@@ -33,6 +33,7 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
     compile 'com.google.guava:guava:26.0-jre'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'

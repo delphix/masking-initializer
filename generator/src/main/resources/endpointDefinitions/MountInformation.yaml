@@ -1,0 +1,21 @@
+className: [mount, Information]
+endpointPath: mount-filesystem
+nameField: MountName
+idField: MountId
+memberVariables:
+  - name: mountId
+    type: Integer
+  - name: mountName
+    type: String
+  - name: hostAddress
+    type: String
+  - name: mountPath
+    type: String
+  - name: type
+    type: String
+  - name: connectOnStartup
+    type: Boolean
+  - name: options
+    type: String
+  - name: status
+    type: String

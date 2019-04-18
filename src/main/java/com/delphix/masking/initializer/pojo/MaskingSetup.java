@@ -27,6 +27,7 @@ public class MaskingSetup {
     private List<String> exportObjectFiles;
     private List<User> users;
     private List<Execution> executions;
+    private List<MountInformation> mountInformations;
 
 }
 

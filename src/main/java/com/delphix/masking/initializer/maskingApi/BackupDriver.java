@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetExecutionComponents;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetExecutions;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetMountInformations;
 import com.delphix.masking.initializer.pojo.Execution;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
@@ -66,6 +67,7 @@ import com.delphix.masking.initializer.pojo.ProfileSet;
 import com.delphix.masking.initializer.pojo.ProfilingJob;
 import com.delphix.masking.initializer.pojo.TableMetadata;
 import com.delphix.masking.initializer.pojo.User;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * This class is responsible for backing up a masking engine. Based on the provided input it can back up
@@ -77,6 +79,10 @@ public class BackupDriver {
     private static String SFTP_PASSWORD = "SFTP_PASSWORD";
     private static String USER_PASSWORD = "USER_PASSWORD";
     private static String REDACTED = "REDACTED";
+
+    private static String CONNECTION_MODE_MOUNT = "MOUNT";
+
+    private static String FILETYPE_DELIMITED = "DELIMITED";
 
     private ApiCallDriver apiCallDriver;
 
@@ -92,6 +98,7 @@ public class BackupDriver {
     private Path baseFolder;
 
     private Map<Integer, String> fileFormatsIdToName = new HashMap<>();
+    private Map<Integer, String> mountIdToName = new HashMap<>();
     private Map<Integer, String> profileSetsIdToName = new HashMap<>();
 
     /**
@@ -169,6 +176,8 @@ public class BackupDriver {
     public void run() {
 
         backupFileFormats();
+        // Mount information are always backed up
+        backupMounts();
 
         // Back up global state depending on the user input
         if (applicationFlags.getGlobal()) {
@@ -332,6 +341,11 @@ public class BackupDriver {
         if (getFileFieldMetadatas.getFileFieldMetadatas() == null) {
             return;
         }
+        getFileFieldMetadatas.getFileFieldMetadatas().forEach( fileFieldMetadata -> {
+            if(StringUtils.isBlank(fileFieldMetadata.getDateFormat())) {
+                fileFieldMetadata.setDateFormat(null);
+            }
+        });
         // There should only ever be 1 returned because we provided the file format id above
         if (scaled) {
             String fileName = getFileName(fileFormat.getFileFormatName());
@@ -446,6 +460,24 @@ public class BackupDriver {
                 .stream()
                 .collect(Collectors.toMap(ProfileSet::getProfileSetId, ProfileSet::getProfileSetName));
         maskingSetup.setProfileSets(getProfileSets.getProfileSets());
+    }
+
+    /**
+     * Backup all profile expressions and sets
+     *
+     * @throws ApiCallException
+     */
+    private void backupMounts() throws ApiCallException {
+        GetMountInformations getMountInformations = new GetMountInformations();
+        try {
+            apiCallDriver.makeGetCall(getMountInformations);
+            if(getMountInformations.getMountInformations() != null) {
+                maskingSetup.setMountInformations(getMountInformations.getMountInformations());
+                getMountInformations.getMountInformations().forEach(mountInformation -> mountIdToName.put(mountInformation.getMountId(), mountInformation.getMountName()));
+            }
+        } catch (Exception e){
+
+        }
     }
 
     /*
@@ -594,8 +626,11 @@ public class BackupDriver {
     }
 
     private FileConnector handleFileConnector(FileConnector fileConnector) {
-        if (fileConnector.getConnectionInfo().getSshKey() == null) {
+        if (!CONNECTION_MODE_MOUNT.equals(fileConnector.getConnectionInfo().getConnectionMode()) && fileConnector.getConnectionInfo().getSshKey() == null) {
             fileConnector.getConnectionInfo().setPassword(SFTP_PASSWORD);
+        }
+        if(mountIdToName.containsKey(fileConnector.getConnectionInfo().getMountId())) {
+            fileConnector.getConnectionInfo().setMountName(mountIdToName.get(fileConnector.getConnectionInfo().getMountId()));
         }
         if (getFileRulesets.getFileRulesets() == null) {
             return fileConnector;
@@ -680,6 +715,9 @@ public class BackupDriver {
         for (FileMetadata fileMetadata : getFileMetadatas.getFileMetadatas()) {
             if (fileFormatsIdToName.containsKey(fileMetadata.getFileMetadataId())) {
                 fileMetadata.setFileFormatName(fileFormatsIdToName.get(fileMetadata.getFileFormatId()));
+            }
+            if(!FILETYPE_DELIMITED.equals(fileMetadata.getFileType())){
+                fileMetadata.setDelimiter(null);
             }
         }
         fileRuleset.setFileMetadatas(getFileMetadatas.getFileMetadatas());
@@ -803,7 +841,7 @@ public class BackupDriver {
                  * There is a bug in the masking application that returns empty date formats in certain situations where
                  * the date format should be null. We need to manually null the date format.
                  */
-                if (columnMetadata.getDateFormat() != null && columnMetadata.getDateFormat().equals("")) {
+                if (StringUtils.isBlank(columnMetadata.getDateFormat())) {
                     columnMetadata.setDateFormat(null);
                 }
                 columnMetadatas.add(columnMetadata);
