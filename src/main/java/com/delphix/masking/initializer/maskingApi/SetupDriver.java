@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostMountInformation;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PutApiCall;
-import com.delphix.masking.initializer.maskingApi.endpointCaller.PutMountInformation;
 import com.delphix.masking.initializer.pojo.MountInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -299,7 +298,7 @@ public class SetupDriver {
             try {
                 apiCallDriver.makePutCall(putConnectMountApiCall);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Mount created but unable to connect. ", e);
             }
         }
     }
@@ -331,8 +330,8 @@ public class SetupDriver {
 
                 PutFileFieldMetadata putFileFieldMetadata = new PutFileFieldMetadata(fileFieldMetadata);
                 apiCallDriver.makePutCall(putFileFieldMetadata);
-            } catch (Exception e) {
-
+            } catch (RuntimeException e) {
+                handleErrors("Error in setting file field metadata id in " + fileFieldMetadata, e);
             }
         }
 
@@ -664,12 +663,16 @@ public class SetupDriver {
                 handleColumnMetadata(tableMetadata.getColumnMetadatas(), Integer.valueOf(PostTableMetadata.getId()));
             }
         } catch (ApiCallException e) {
-            if (ignoreErrors) {
-                logger.error("Error while creating table metadata: " + e.getMessage());
-                logger.info("Continuing on because ignore errors is specified.");
-            } else {
-                throw e;
-            }
+            handleErrors("Error while creating table metadata. ", e);
+        }
+    }
+
+    private <E extends Exception> void handleErrors(String errMsg, E e) throws E {
+        if(ignoreErrors) {
+            logger.error(errMsg, e);
+            logger.info("Continuing on because ignore errors is specified.");
+        } else {
+            throw e;
         }
     }
 
@@ -695,14 +698,7 @@ public class SetupDriver {
             if (columnMetadata.getColumnMetadataId() == null) {
                 String error = String.format("Unable to find column with name %s in table with id " +
                         "%s", columnMetadata.getColumnName(), tableMetadataId);
-                if (ignoreErrors) {
-                    logger.error(error);
-                    logger.info("Continuing on because ignore errors is specified.");
-                    continue;
-                } else {
-                    throw new MissingDataException(error);
-                }
-
+                handleErrors(error, new MissingDataException(error));
             }
             PutColumnMetadata putColumnMetadata = new PutColumnMetadata(columnMetadata);
             apiCallDriver.makePutCall(putColumnMetadata);

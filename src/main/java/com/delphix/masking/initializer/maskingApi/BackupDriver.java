@@ -68,12 +68,15 @@ import com.delphix.masking.initializer.pojo.ProfilingJob;
 import com.delphix.masking.initializer.pojo.TableMetadata;
 import com.delphix.masking.initializer.pojo.User;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class is responsible for backing up a masking engine. Based on the provided input it can back up
  * job specific state and global state as well (syncable objects, profile sets, domains etc).
  */
 public class BackupDriver {
+    Logger logger = LogManager.getLogger(this.getClass());
 
     private static String DATABASE_PASSWORD = "DATABASE_PASSWORD";
     private static String SFTP_PASSWORD = "SFTP_PASSWORD";
@@ -96,6 +99,7 @@ public class BackupDriver {
     private boolean scaled;
     private boolean isMasked;
     private Path baseFolder;
+    private boolean ignoreErrors = false;
 
     private Map<Integer, String> fileFormatsIdToName = new HashMap<>();
     private Map<Integer, String> mountIdToName = new HashMap<>();
@@ -111,6 +115,7 @@ public class BackupDriver {
     public BackupDriver(ApplicationFlags applicationFlags) throws ApiCallException, IOException {
 
         this.applicationFlags = applicationFlags;
+        this.ignoreErrors = applicationFlags.isIgnoreErrors();
 
         // Initialize the api call driver to point to the correct engine
         if (applicationFlags.getAuthToken() == null) {
@@ -463,7 +468,7 @@ public class BackupDriver {
     }
 
     /**
-     * Backup all profile expressions and sets
+     * Backup all mounts
      *
      * @throws ApiCallException
      */
@@ -475,9 +480,19 @@ public class BackupDriver {
                 maskingSetup.setMountInformations(getMountInformations.getMountInformations());
                 getMountInformations.getMountInformations().forEach(mountInformation -> mountIdToName.put(mountInformation.getMountId(), mountInformation.getMountName()));
             }
-        } catch (Exception e){
-
+        } catch (ApiCallException e){
+            handleIgnoreErrors("Error in getting mounts ", e);
         }
+    }
+
+    private <E extends Exception> void handleIgnoreErrors(String errMsg, E e) throws E {
+        if(ignoreErrors) {
+            logger.error(errMsg);
+            logger.info("Continuing on because ignore errors is specified.");
+        } else {
+            throw e;
+        }
+
     }
 
     /*
@@ -713,7 +728,7 @@ public class BackupDriver {
         }
 
         for (FileMetadata fileMetadata : getFileMetadatas.getFileMetadatas()) {
-            if (fileFormatsIdToName.containsKey(fileMetadata.getFileMetadataId())) {
+            if (fileFormatsIdToName.containsKey(fileMetadata.getFileFormatId())) {
                 fileMetadata.setFileFormatName(fileFormatsIdToName.get(fileMetadata.getFileFormatId()));
             }
             if(!FILETYPE_DELIMITED.equals(fileMetadata.getFileType())){
