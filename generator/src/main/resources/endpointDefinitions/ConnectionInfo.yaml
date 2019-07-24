@@ -17,3 +17,7 @@ memberVariables:
     type: Integer
   - name: sshKey
     type: String
+  - name: mountId
+    type: Integer
+  - name: mountName
+    type: String

@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -156,11 +157,13 @@ public class ApiCallDriver {
         logger.info(url + " PUT");
         logger.debug("Request Body: {}", jsonBody);
 
-        StringEntity stringEntity;
-        stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8);
-
         HttpPut httpPut = new HttpPut(url);
-        httpPut.setEntity(stringEntity);
+        if(StringUtils.isNotEmpty(jsonBody)) {
+            StringEntity stringEntity;
+            stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8);
+
+            httpPut.setEntity(stringEntity);
+        }
 
         return handleResponse(httpPut, url, false);
 

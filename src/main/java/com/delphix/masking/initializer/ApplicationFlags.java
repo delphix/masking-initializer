@@ -170,6 +170,7 @@ public class ApplicationFlags {
         authToken = getValue(AUTH_TOKEN, AUTHTOKEN_OPTION, commandLine);
 
         isSslEnabled = commandLine.hasOption(SSL_OPTION);
+        ignoreErrors = commandLine.hasOption(IGNORE_ERRORS);
 
         /*
          * Backup requires host/port/username/password being all set. An authtoken can be provided instead of a username
@@ -221,9 +222,6 @@ public class ApplicationFlags {
 
             if (commandLine.hasOption(API_PATH_OPTION)) {
                 apiPath = commandLine.getOptionValue(API_PATH_OPTION);
-            }
-            if (commandLine.hasOption(IGNORE_ERRORS)) {
-                ignoreErrors = true;
             }
 
         }

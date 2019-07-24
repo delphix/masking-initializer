@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PostMountInformation;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PutApiCall;
+import com.delphix.masking.initializer.pojo.MountInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,6 +84,8 @@ public class SetupDriver {
     private boolean ignoreErrors = false;
 
     private Map<String, Integer> fileFormats = new HashMap<>();
+    private Map<String, Integer> mountNameToId = new HashMap<>();
+
 
     /**
      * Initializes {@link #maskingSetup} with only the contents of the file
@@ -220,6 +225,10 @@ public class SetupDriver {
                 handleFileFormats(maskingSetup.getFileFormats());
             }
 
+            if (maskingSetup.getMountInformations() != null) {
+                handleMountInformation(maskingSetup.getMountInformations());
+            }
+
             if (maskingSetup.getApplications() != null) {
                 handleApps(maskingSetup.getApplications());
                 onlyConnectors = false;
@@ -269,6 +278,31 @@ public class SetupDriver {
         }
     }
 
+    private void handleMountInformation(List<MountInformation> mountInformationList) {
+        for(MountInformation mountInformation: mountInformationList) {
+            PostMountInformation postMountInformation = new PostMountInformation(mountInformation);
+            apiCallDriver.makePostCall(postMountInformation);
+            Integer mountId = Integer.valueOf(postMountInformation.getId());
+            this.mountNameToId.put(mountInformation.getMountName(), mountId);
+            PutApiCall putConnectMountApiCall = new PutApiCall() {
+                @Override
+                protected String getEndpoint() {
+                    return String.format("mount-filesystem/%d/connect", mountId);
+                }
+
+                @Override
+                protected void setResponse(String responseBody) {
+                    this.setId(mountId.toString());
+                }
+            };
+            try {
+                apiCallDriver.makePutCall(putConnectMountApiCall);
+            } catch (Exception e) {
+                logger.error("Mount created but unable to connect. ", e);
+            }
+        }
+    }
+
     private void handleFileFieldMetadata(List<FileFieldMetadata> fileFieldMetadatas, Integer fileFormatId) {
 
         GetFileFieldMetadatas getFileFieldMetadatas = new GetFileFieldMetadatas();
@@ -282,19 +316,23 @@ public class SetupDriver {
 
         for (FileFieldMetadata fileFieldMetadata : fileFieldMetadatas) {
 
-            Integer id = getFileFieldMetadatas
-                    .getFileFieldMetadatas()
-                    .stream()
-                    .filter(f -> f.getFileFormatId().equals(fileFormatId) && f.getFieldName().equals
-                            (fileFieldMetadata.getFieldName()))
-                    .findFirst()
-                    .orElseThrow(RuntimeException::new)
-                    .getFileFieldMetadataId();
+            try {
+                Integer id = getFileFieldMetadatas
+                        .getFileFieldMetadatas()
+                        .stream()
+                        .filter(f -> f.getFileFormatId().equals(fileFormatId) && f.getFieldName().equals
+                                (fileFieldMetadata.getFieldName()))
+                        .findFirst()
+                        .orElseThrow(RuntimeException::new)
+                        .getFileFieldMetadataId();
 
-            fileFieldMetadata.setFileFieldMetadataId(id);
+                fileFieldMetadata.setFileFieldMetadataId(id);
 
-            PutFileFieldMetadata putFileFieldMetadata = new PutFileFieldMetadata(fileFieldMetadata);
-            apiCallDriver.makePutCall(putFileFieldMetadata);
+                PutFileFieldMetadata putFileFieldMetadata = new PutFileFieldMetadata(fileFieldMetadata);
+                apiCallDriver.makePutCall(putFileFieldMetadata);
+            } catch (RuntimeException e) {
+                handleErrors("Error in setting file field metadata id in " + fileFieldMetadata, e);
+            }
         }
 
 
@@ -450,6 +488,7 @@ public class SetupDriver {
 
     private void handleFileConnector(List<FileConnector> fileConnectors, Integer envId) throws ApiCallException {
         for (FileConnector fileConnector : fileConnectors) {
+            fileConnector.getConnectionInfo().setMountId(mountNameToId.get(fileConnector.getConnectionInfo().getMountName()));
             PostFileConnector postFileConnector = new PostFileConnector(fileConnector, envId);
             apiCallDriver.makePostCall(postFileConnector);
             if (onlyConnectors == true) {
@@ -553,7 +592,7 @@ public class SetupDriver {
 
     private void handleMaskingJob(List<MaskingJob> maskingJobs, Integer ruleSetId) throws ApiCallException {
         for (MaskingJob maskingJob : maskingJobs) {
-            if (maskingJob.getOnTheFlyMasking()) {
+            if (maskingJob.getOnTheFlyMasking() != null && maskingJob.getOnTheFlyMasking()) {
                 handleOtfMaskingJob(maskingJob);
             }
             PostMaskingJob PostMaskingJob = new PostMaskingJob(maskingJob, ruleSetId);
@@ -624,12 +663,16 @@ public class SetupDriver {
                 handleColumnMetadata(tableMetadata.getColumnMetadatas(), Integer.valueOf(PostTableMetadata.getId()));
             }
         } catch (ApiCallException e) {
-            if (ignoreErrors) {
-                logger.error("Error while creating table metadata: " + e.getMessage());
-                logger.info("Continuing on because ignore errors is specified.");
-            } else {
-                throw e;
-            }
+            handleErrors("Error while creating table metadata. ", e);
+        }
+    }
+
+    private <E extends Exception> void handleErrors(String errMsg, E e) throws E {
+        if(ignoreErrors) {
+            logger.error(errMsg, e);
+            logger.info("Continuing on because ignore errors is specified.");
+        } else {
+            throw e;
         }
     }
 
@@ -655,14 +698,7 @@ public class SetupDriver {
             if (columnMetadata.getColumnMetadataId() == null) {
                 String error = String.format("Unable to find column with name %s in table with id " +
                         "%s", columnMetadata.getColumnName(), tableMetadataId);
-                if (ignoreErrors) {
-                    logger.error(error);
-                    logger.info("Continuing on because ignore errors is specified.");
-                    continue;
-                } else {
-                    throw new MissingDataException(error);
-                }
-
+                handleErrors(error, new MissingDataException(error));
             }
             PutColumnMetadata putColumnMetadata = new PutColumnMetadata(columnMetadata);
             apiCallDriver.makePutCall(putColumnMetadata);

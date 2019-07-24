@@ -24,6 +24,8 @@ memberVariables:
     type: String
   - name: isMasked
     type: Boolean
+  - name: isProfilerWritable
+    type: Boolean
   - name: notes
     type: String
 queryParams:
