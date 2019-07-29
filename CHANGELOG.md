@@ -11,7 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.1.0]
+Add support for syncing mounts
+
 ## [2.0.0]
+Sync with masking schema for masking version 6.0
 
 ### Fixed
 Fix for issue #39 - Masking initializer is no longer in sync with masking engine schema

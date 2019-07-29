@@ -14,6 +14,7 @@ of the following objects.
  * Column metadata
  * Masking jobs
  * Profiling jobs
+ * Mounts
 
 ##### Global Objects
  * Profile Sets
@@ -26,7 +27,7 @@ of the following objects.
 
 # Version
 
-The current `2.X` version is `2.0.0`.
+The current `2.X` version is `2.1.0`.
 
 The current `1.X` version is `1.1.0`.
 
