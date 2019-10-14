@@ -4,6 +4,7 @@ import static com.delphix.masking.initializer.Constants.BASE_FILE;
 import static com.delphix.masking.initializer.Constants.JSON_EXTENSION;
 import static com.delphix.masking.initializer.Constants.MASKING;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.GetEnvironments
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileConnectors;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFieldMetadatas;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFormats;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetJdbcDrivers;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfileSets;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostApplication;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostDatabaseConnector;
@@ -40,6 +42,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.PostDomain;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostEnvironment;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileConnector;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileFormat;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PostJdbcDriver;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileMetadata;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileRuleset;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostImportObject;
@@ -51,6 +54,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.PostTableMetada
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostUser;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PutColumnMetadata;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PutFileFieldMetadata;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PutJdbcDriver;
 import com.delphix.masking.initializer.pojo.Application;
 import com.delphix.masking.initializer.pojo.ColumnMetadata;
 import com.delphix.masking.initializer.pojo.DatabaseConnector;
@@ -63,6 +67,7 @@ import com.delphix.masking.initializer.pojo.FileFieldMetadata;
 import com.delphix.masking.initializer.pojo.FileFormat;
 import com.delphix.masking.initializer.pojo.FileMetadata;
 import com.delphix.masking.initializer.pojo.FileRuleset;
+import com.delphix.masking.initializer.pojo.JdbcDriver;
 import com.delphix.masking.initializer.pojo.MaskingJob;
 import com.delphix.masking.initializer.pojo.MaskingSetup;
 import com.delphix.masking.initializer.pojo.ProfileExpression;
@@ -85,6 +90,7 @@ public class SetupDriver {
 
     private Map<String, Integer> fileFormats = new HashMap<>();
     private Map<String, Integer> mountNameToId = new HashMap<>();
+    private Map<String, Integer> jdbcDriversMap = new HashMap<>();
 
 
     /**
@@ -225,6 +231,10 @@ public class SetupDriver {
                 handleFileFormats(maskingSetup.getFileFormats());
             }
 
+            if (maskingSetup.getJdbcDrivers() != null) {
+                handleJdbcDrivers(maskingSetup.getJdbcDrivers());
+            }
+
             if (maskingSetup.getMountInformations() != null) {
                 handleMountInformation(maskingSetup.getMountInformations());
             }
@@ -274,6 +284,25 @@ public class SetupDriver {
         for (FileFormat fileFormat : getFileFormats.getFileFormats()) {
             if (!this.fileFormats.containsKey(fileFormat.getFileFormatName())) {
                 this.fileFormats.put(fileFormat.getFileFormatName(), fileFormat.getFileFormatId());
+            }
+        }
+    }
+
+    private void handleJdbcDrivers(List<JdbcDriver> jdbcDrivers) throws ApiCallException {
+        for (JdbcDriver jdbcDriver : jdbcDrivers) {
+            String driverFileName = "JDBC_DRIVER_" + jdbcDriver.getDriverName() + ".zip";
+            File driverFile = new File(baseFolder.resolve(driverFileName).toString());
+            PostJdbcDriver postJdbcDriver = new PostJdbcDriver(jdbcDriver, driverFile);
+            apiCallDriver.makePostCall(postJdbcDriver);
+            Integer id = Integer.valueOf(postJdbcDriver.getId());
+            this.jdbcDriversMap.put(jdbcDriver.getDriverName(), id);
+        }
+        // Add any pre-existing JDBC Drivers to the map so that extended connector can be uploaded properly
+        GetJdbcDrivers getJdbcDriver = new GetJdbcDrivers();
+        apiCallDriver.makeGetCall(getJdbcDriver);;
+        for (JdbcDriver jdbcDriver : getJdbcDriver.getJdbcDrivers()) {
+            if (!this.jdbcDriversMap.containsKey(jdbcDriver.getDriverName())) {
+                this.jdbcDriversMap.put(jdbcDriver.getDriverName(), jdbcDriver.getJdbcDriverId());
             }
         }
     }
@@ -467,6 +496,11 @@ public class SetupDriver {
     private void handleDatabaseConnectors(List<DatabaseConnector> databaseConnectors, Integer envId) throws
             IOException, ApiCallException {
         for (DatabaseConnector databaseConnector : databaseConnectors) {
+            if (!jdbcDriversMap.containsKey(databaseConnector.getDriverName())) {
+                throw new MissingDataException(String.format("JDBC Driver with name %s was not uploaded",
+                        databaseConnector.getDriverName()));
+            }
+            databaseConnector.setJdbcDriverId(jdbcDriversMap.get(databaseConnector.getDriverName()));
             PostDatabaseConnector postDatabaseConnector = new PostDatabaseConnector(databaseConnector, envId);
             apiCallDriver.makePostCall(postDatabaseConnector);
             if (onlyConnectors == true) {

@@ -1,12 +1,19 @@
 package com.delphix.masking.initializer.maskingApi.endpointCaller;
 
+import org.apache.http.HttpEntity;
+
 public abstract class PutApiCall extends ApiCall {
 
     String id;
     String name;
     String body;
+    boolean isMultiPart = false;
 
     protected abstract String getEndpoint();
+
+    public HttpEntity getMultiPartEntity() {
+        return null;
+    }
 
     String getBody() {
         return body;

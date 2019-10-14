@@ -1,0 +1,14 @@
+className: [system, Information]
+generateGet: false
+generatePut: false
+generatePost: false
+memberVariables:
+  - name: version
+    type: String
+  - name: build
+    type: String
+  - name: latestGlobalKeyResetTime
+    type: String
+  - name: patentNumbers
+    type: list
+    listType: String

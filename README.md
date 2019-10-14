@@ -24,6 +24,7 @@ of the following objects.
  * File formats
  * File field metadata
  * Users
+ * JDBC Drivers
 
 # Version
 
@@ -204,6 +205,18 @@ the required file format at step up time, the job can be configured properly. Fo
 2. User runs this back up script on the masking engine.
 3. User wants to restore that masking job to another engine. They can achieve this as long as
  `my_file_format.txt`  is next to the backup file, or in the backup folder.
+
+# JDBC Drivers
+
+Unfortunately the masking engine does not provide a way to retrieve JDBC driver files that have been uploaded,
+so this tool has no way to retrieve them at backup. However, masking engine does backup of JDBC Drivers MDS information. If a JDBC Driver is backed up, then if the user simply provides
+the required driver zip file at step up time, the JDBC Driver can be configured properly. For example:
+
+1. User sets up a JDBC Driver using driver zip file named `JDBC_DRIVER_<DRIVER_NAME>.zip`.
+It is important that driver zip file name should be use `JDBC_DRIVER_<DRIVER_NAME>`, eg. If `driverName` is `HANA`, then driver zip file should be named as `JDBC_DRIVER_HANA.zip`.
+2. User runs this back up script on the masking engine.
+3. User wants to restore that masking job to another engine. They can achieve this as long as
+ `JDBC_DRIVER_<DRIVER_NAME>.zip` is next to the backup file, or in the backup folder.
 
 # Contribute
 

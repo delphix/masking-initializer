@@ -24,6 +24,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.GetMountInforma
 import com.delphix.masking.initializer.pojo.Execution;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import com.delphix.masking.initializer.ApplicationFlags;
 import com.delphix.masking.initializer.Utils;
@@ -40,11 +41,13 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFieldMet
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileFormats;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileMetadatas;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetFileRulesets;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetJdbcDrivers;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetMaskingJobs;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfileExpressions;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfileSets;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetProfilingJobs;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetSyncableObjects;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.GetSystemInformations;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetTableMetadatas;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.GetUsers;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostExportObject;
@@ -60,11 +63,13 @@ import com.delphix.masking.initializer.pojo.FileConnector;
 import com.delphix.masking.initializer.pojo.FileFormat;
 import com.delphix.masking.initializer.pojo.FileMetadata;
 import com.delphix.masking.initializer.pojo.FileRuleset;
+import com.delphix.masking.initializer.pojo.JdbcDriver;
 import com.delphix.masking.initializer.pojo.MaskingJob;
 import com.delphix.masking.initializer.pojo.MaskingSetup;
 import com.delphix.masking.initializer.pojo.ProfileExpression;
 import com.delphix.masking.initializer.pojo.ProfileSet;
 import com.delphix.masking.initializer.pojo.ProfilingJob;
+import com.delphix.masking.initializer.pojo.SystemInformation;
 import com.delphix.masking.initializer.pojo.TableMetadata;
 import com.delphix.masking.initializer.pojo.User;
 import org.apache.commons.lang.StringUtils;
@@ -87,6 +92,9 @@ public class BackupDriver {
 
     private static String FILETYPE_DELIMITED = "DELIMITED";
 
+    private static SystemInformation systemInformation;
+    private final String ENGINE_VERSION_TO_BACKUP_JDBC_DRIVERS = "6.0.1.0";
+
     private ApiCallDriver apiCallDriver;
 
     private ApplicationFlags applicationFlags;
@@ -104,6 +112,7 @@ public class BackupDriver {
     private Map<Integer, String> fileFormatsIdToName = new HashMap<>();
     private Map<Integer, String> mountIdToName = new HashMap<>();
     private Map<Integer, String> profileSetsIdToName = new HashMap<>();
+    private Map<Integer, String> jdbcDriversIdToName = new HashMap<>();
 
     /**
      * Initialize the {@link #maskingSetup} object with the necessary masking engine information
@@ -181,6 +190,10 @@ public class BackupDriver {
     public void run() {
 
         backupFileFormats();
+        // backup JDBC Drivers only if the release version is 6.0.1.0 or higher
+        if(isEngineVersionAtLeast(ENGINE_VERSION_TO_BACKUP_JDBC_DRIVERS)) {
+            backupJdbcDrivers();
+        }
         // Mount information are always backed up
         backupMounts();
 
@@ -237,6 +250,20 @@ public class BackupDriver {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private boolean isEngineVersionAtLeast(String requiredVersion) {
+        if(systemInformation == null) {
+            GetSystemInformations getSystemInformations = new GetSystemInformations();
+            apiCallDriver.makeGetCall(getSystemInformations);
+            systemInformation = getSystemInformations.getSystemInformation();
+        }
+        DefaultArtifactVersion engineVersion = new DefaultArtifactVersion(systemInformation.getVersion());
+        DefaultArtifactVersion requiredEngineVersion = new DefaultArtifactVersion(requiredVersion);
+        if (engineVersion.compareTo(requiredEngineVersion) >= 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -400,6 +427,19 @@ public class BackupDriver {
                 users.add(handleUser(user));
             }
             maskingSetup.setUsers(users);
+        }
+    }
+
+    private void backupJdbcDrivers() throws ApiCallException {
+        GetJdbcDrivers getJdbcDrivers = new GetJdbcDrivers();
+        apiCallDriver.makeGetCall(getJdbcDrivers);
+        if (getJdbcDrivers.getJdbcDrivers() != null) {
+            ArrayList<JdbcDriver> jdbcDrivers = new ArrayList<>();
+            for (JdbcDriver jdbcDriver : getJdbcDrivers.getJdbcDrivers()) {
+                jdbcDrivers.add(jdbcDriver);
+                jdbcDriversIdToName.put(jdbcDriver.getJdbcDriverId(), jdbcDriver.getDriverName());
+            }
+            maskingSetup.setJdbcDrivers(jdbcDrivers);
         }
     }
 
@@ -601,6 +641,11 @@ public class BackupDriver {
             databaseConnector.setInstanceName(null);
             databaseConnector.setSid(null);
             databaseConnector.setDatabaseName(null);
+        }
+
+        if(databaseConnector.getJdbcDriverId() != null &&
+                jdbcDriversIdToName.containsKey(databaseConnector.getJdbcDriverId())) {
+            databaseConnector.setDriverName(jdbcDriversIdToName.get(databaseConnector.getJdbcDriverId()));
         }
 
         /*
