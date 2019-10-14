@@ -110,7 +110,13 @@ public class ApiCallDriver {
     }
 
     public void makePutCall(PutApiCall putApiCall) throws ApiCallException {
-        makePutCall(putApiCall.getEndpoint(), putApiCall.getBody());
+        String response;
+        if (putApiCall.isMultiPart) {
+            response = makeMultiPartPutCall(putApiCall.getEndpoint(), putApiCall.getMultiPartEntity());
+        } else {
+            response = makePutCall(putApiCall.getEndpoint(), putApiCall.getBody());
+        }
+        putApiCall.setResponse(response);
     }
 
     private String makeGetApiCall(String endpointPath) throws ApiCallException {
@@ -127,7 +133,7 @@ public class ApiCallDriver {
             IOException {
 
         String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
-        logger.info(url);
+        logger.info(url + " POST");
 
         HttpPost httpPost = new HttpPost(url);
         httpPost.setEntity(httpEntity);
@@ -151,6 +157,18 @@ public class ApiCallDriver {
 
     }
 
+    private String makeMultiPartPutCall(String endpointPath, HttpEntity httpEntity) throws ApiCallException {
+        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
+
+        logger.info(url + " PUT");
+
+        HttpPut httpPut = new HttpPut(url);
+        httpPut.setEntity(httpEntity);
+
+        return handleResponse(httpPut, url, true);
+
+    }
+
     private String makePutCall(String endpointPath, String jsonBody) throws ApiCallException {
         String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
 
@@ -168,7 +186,6 @@ public class ApiCallDriver {
         return handleResponse(httpPut, url, false);
 
     }
-
     private void setHeaders(HttpRequestBase httpRequestBase, boolean isMultiPart) {
 
         if (!isMultiPart) {

@@ -1,0 +1,27 @@
+className: [jdbc, Driver]
+endpointPath: jdbc-drivers
+nameField: DriverName
+idField: JdbcDriverId
+isMultiPart: true
+generateGet: false
+generatePut: false
+generatePost: false
+memberVariables:
+  - name: jdbcDriverId
+    type: Integer
+  - name: driverName
+    type: String
+  - name: driverClassName
+    type: String
+  - name: description
+    type: String
+  - name: version
+    type: String
+  - name: uploadedBy
+    type: String
+  - name: uploadDate
+    type: String
+  - name: checksum
+    type: String
+  - name: builtIn
+    type: Boolean

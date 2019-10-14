@@ -36,6 +36,10 @@ memberVariables:
     type: String
   - name: useKerberosAuth
     type: Boolean
+  - name: jdbcDriverId
+    type: Integer
+  - name: driverName
+    type: String
   - name: databaseRulesets
     type: List
     listType: DatabaseRuleset

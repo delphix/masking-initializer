@@ -28,6 +28,7 @@ public class MaskingSetup {
     private List<User> users;
     private List<Execution> executions;
     private List<MountInformation> mountInformations;
+    private List<JdbcDriver> jdbcDrivers;
 
 }
 
