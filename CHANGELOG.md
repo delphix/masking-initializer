@@ -11,6 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.2.0]
+
+### Added
+Fix for issue #47 - Add JDBC Drivers object to backup/restore
+
 ## [2.1.0]
 Add support for syncing mounts
 

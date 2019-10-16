@@ -28,7 +28,7 @@ of the following objects.
 
 # Version
 
-The current `2.X` version is `2.1.0`.
+The current `2.X` version is `2.2.0`.
 
 The current `1.X` version is `1.1.0`.
 
