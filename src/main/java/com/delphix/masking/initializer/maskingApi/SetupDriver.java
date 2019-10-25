@@ -510,7 +510,7 @@ public class SetupDriver {
             }
 
             if (fileRuleset.getMaskingJobs() != null) {
-                handleMaskingJob(fileRuleset.getMaskingJobs(), Integer.valueOf(postFileRuleset.getId()));
+                handleMaskingJob(fileRuleset.getMaskingJobs(), Integer.valueOf(postFileRuleset.getId()), ConnectorType.FILE);
             }
 
             if (fileRuleset.getProfilingJobs() != null) {
@@ -547,7 +547,7 @@ public class SetupDriver {
             }
         }
         if (databaseRuleset.getMaskingJobs() != null) {
-            handleMaskingJob(databaseRuleset.getMaskingJobs(), Integer.valueOf(PostDatabaseRuleset.getId()));
+            handleMaskingJob(databaseRuleset.getMaskingJobs(), Integer.valueOf(PostDatabaseRuleset.getId()), ConnectorType.DATABASE);
         }
         if (databaseRuleset.getProfilingJobs() != null) {
             handleProfilingJob(databaseRuleset.getProfilingJobs(), Integer.valueOf(PostDatabaseRuleset.getId()));
@@ -590,17 +590,17 @@ public class SetupDriver {
         }
     }
 
-    private void handleMaskingJob(List<MaskingJob> maskingJobs, Integer ruleSetId) throws ApiCallException {
+    private void handleMaskingJob(List<MaskingJob> maskingJobs, Integer ruleSetId, ConnectorType connectorType) throws ApiCallException {
         for (MaskingJob maskingJob : maskingJobs) {
             if (maskingJob.getOnTheFlyMasking() != null && maskingJob.getOnTheFlyMasking()) {
-                handleOtfMaskingJob(maskingJob);
+                handleOtfMaskingJob(maskingJob, connectorType);
             }
             PostMaskingJob PostMaskingJob = new PostMaskingJob(maskingJob, ruleSetId);
             apiCallDriver.makePostCall(PostMaskingJob);
         }
     }
 
-    private void handleOtfMaskingJob(MaskingJob maskingJob) {
+    private void handleOtfMaskingJob(MaskingJob maskingJob, ConnectorType connectorType) {
         GetEnvironments getEnvironments = new GetEnvironments();
         try {
             apiCallDriver.makeGetCall(getEnvironments);
@@ -617,6 +617,24 @@ public class SetupDriver {
                 .orElseThrow(RuntimeException::new)
                 .getEnvironmentId();
 
+        Integer connId;
+        String connectorName = maskingJob.getOnTheFlyMaskingSource().getConnectorName();
+        switch (connectorType){
+            case FILE:
+                connId = getFileConnectorId(envId, connectorName);
+                break;
+            case DATABASE:
+                connId = getDBConnectorId(envId, connectorName);
+                break;
+            default:
+                throw new RuntimeException("Not a supported connector type " + connectorType);
+        }
+
+        maskingJob.getOnTheFlyMaskingSource().setConnectorId(connId);
+
+    }
+
+    private Integer getDBConnectorId(Integer envId, String connectorName) {
         GetDatabaseConnectors getDatabaseConnectors = new GetDatabaseConnectors();
         getDatabaseConnectors.setEnvironmentId(envId);
 
@@ -625,34 +643,26 @@ public class SetupDriver {
         } catch (ApiCallException e) {
             throw new RuntimeException(e);
         }
-        Integer connId;
         DatabaseConnector dbConn = getDatabaseConnectors
                 .getDatabaseConnectors()
                 .stream()
-                .filter(conn -> conn.getConnectorName().equals(maskingJob.getOnTheFlyMaskingSource().getConnectorName
-                        ()))
+                .filter(conn -> conn.getConnectorName().equals(connectorName))
                 .findFirst()
                 .orElse(null);
+        return dbConn.getDatabaseConnectorId();
+    }
 
-        if (dbConn == null) {
-            GetFileConnectors getFileConnectors = new GetFileConnectors();
-            getFileConnectors.setEnvironment_id(envId);
-            apiCallDriver.makeGetCall(getFileConnectors);
-            FileConnector filConn = getFileConnectors
-                    .getFileConnectors()
-                    .stream()
-                    .filter(conn -> conn.getConnectorName().equals(maskingJob.getOnTheFlyMaskingSource()
-                            .getConnectorName()))
-                    .findFirst()
-                    .orElseThrow(RuntimeException::new);
-            connId = filConn.getFileConnectorId();
-
-        } else {
-            connId = dbConn.getDatabaseConnectorId();
-        }
-
-        maskingJob.getOnTheFlyMaskingSource().setConnectorId(connId);
-
+    private Integer getFileConnectorId(Integer envId, String connectorName) {
+        GetFileConnectors getFileConnectors = new GetFileConnectors();
+        getFileConnectors.setEnvironment_id(envId);
+        apiCallDriver.makeGetCall(getFileConnectors);
+        FileConnector filConn = getFileConnectors
+                .getFileConnectors()
+                .stream()
+                .filter(conn -> conn.getConnectorName().equals(connectorName))
+                .findFirst()
+                .orElseThrow(RuntimeException::new);
+        return filConn.getFileConnectorId();
     }
 
     private void handleTableMetadata(TableMetadata tableMetadata, Integer ruleSetId) throws ApiCallException {
