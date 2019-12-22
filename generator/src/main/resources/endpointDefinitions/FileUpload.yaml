@@ -1,0 +1,11 @@
+className: [file, Upload]
+endpointPath: file-uploads
+nameField: FileReferenceId
+idField: FileReferenceId
+isMultiPart: true
+generateGet: false
+generatePut: false
+generatePost: false
+memberVariables:
+  - name: fileReferenceId
+    type: String

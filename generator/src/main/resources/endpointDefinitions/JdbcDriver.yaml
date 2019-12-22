@@ -2,10 +2,7 @@ className: [jdbc, Driver]
 endpointPath: jdbc-drivers
 nameField: DriverName
 idField: JdbcDriverId
-isMultiPart: true
 generateGet: false
-generatePut: false
-generatePost: false
 memberVariables:
   - name: jdbcDriverId
     type: Integer
@@ -25,3 +22,7 @@ memberVariables:
     type: String
   - name: builtIn
     type: Boolean
+  - name: loggerInstalled
+    type: Boolean
+  - name: fileReferenceId
+    type: String
