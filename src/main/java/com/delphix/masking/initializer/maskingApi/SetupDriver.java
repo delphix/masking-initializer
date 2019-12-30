@@ -42,6 +42,7 @@ import com.delphix.masking.initializer.maskingApi.endpointCaller.PostDomain;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostEnvironment;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileConnector;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileFormat;
+import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileUpload;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostJdbcDriver;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileMetadata;
 import com.delphix.masking.initializer.maskingApi.endpointCaller.PostFileRuleset;
@@ -292,7 +293,10 @@ public class SetupDriver {
         for (JdbcDriver jdbcDriver : jdbcDrivers) {
             String driverFileName = "JDBC_DRIVER_" + jdbcDriver.getDriverName() + ".zip";
             File driverFile = new File(baseFolder.resolve(driverFileName).toString());
-            PostJdbcDriver postJdbcDriver = new PostJdbcDriver(jdbcDriver, driverFile);
+            PostFileUpload postFileUpload = new PostFileUpload(driverFile);
+            apiCallDriver.makePostCall(postFileUpload);
+            jdbcDriver.setFileReferenceId(postFileUpload.getId());
+            PostJdbcDriver postJdbcDriver = new PostJdbcDriver(jdbcDriver);
             apiCallDriver.makePostCall(postJdbcDriver);
             Integer id = Integer.valueOf(postJdbcDriver.getId());
             this.jdbcDriversMap.put(jdbcDriver.getDriverName(), id);
