@@ -258,7 +258,12 @@ public class BackupDriver {
             apiCallDriver.makeGetCall(getSystemInformations);
             systemInformation = getSystemInformations.getSystemInformation();
         }
-        DefaultArtifactVersion engineVersion = new DefaultArtifactVersion(systemInformation.getVersion());
+        String version = systemInformation.getVersion();
+        // Some pre-release version may contain extra information after the version so ignore that.
+        if(version.contains("-")) {
+            version = version.substring(0, version.indexOf("-"));
+        }
+        DefaultArtifactVersion engineVersion = new DefaultArtifactVersion(version);
         DefaultArtifactVersion requiredEngineVersion = new DefaultArtifactVersion(requiredVersion);
         if (engineVersion.compareTo(requiredEngineVersion) >= 0) {
             return true;
