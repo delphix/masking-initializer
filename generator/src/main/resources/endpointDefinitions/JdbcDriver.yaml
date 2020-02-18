@@ -26,3 +26,6 @@ memberVariables:
     type: Boolean
   - name: fileReferenceId
     type: String
+  - name: pluginJvmPermissions
+    type: List
+    listType: JvmPermission
