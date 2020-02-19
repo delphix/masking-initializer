@@ -11,7 +11,14 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.3.2]
+
+### Fixed
+Fix for issue #53 - Make changes in backup and restore for JDBC Driver's Permission
+
 ## [2.3.1]
+
+### Fixed
 Fix for issue #51 - Compare engine version functionality is not working if the version contains additional string information.
 
 ## [2.3.0]
