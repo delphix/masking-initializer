@@ -1,0 +1,11 @@
+className: [Jvm, Permission]
+generateGet: false
+generatePut: false
+generatePost: false
+memberVariables:
+  - name: className
+    type: String
+  - name: target
+    type: String
+  - name: action
+    type: String

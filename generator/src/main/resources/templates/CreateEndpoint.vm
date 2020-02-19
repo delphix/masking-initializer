@@ -63,7 +63,9 @@ public class Post${ClassName} extends PostApiCall {
 #foreach( $memberVariable in $memberVariables )
 #if ($memberVariable.listType)
         List<$memberVariable.listType> ${memberVariable.name} = ${className}.get${memberVariable.getUpperName()}();
-        ${className}.set${memberVariable.getUpperName()}(null);
+        #if (!$memberVariable.notResetToNull)
+                ${className}.set${memberVariable.getUpperName()}(null);
+        #end
 #end
 #end
 

@@ -8,6 +8,7 @@ public class MemberVariable {
     private String name;
     private String type;
     private String listType;
+    private Boolean notResetToNull;
 
     public String getUpperName() {
         return name.substring(0, 1).toUpperCase() + name.substring(1);
