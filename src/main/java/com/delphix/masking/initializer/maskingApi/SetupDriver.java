@@ -79,6 +79,7 @@ import com.delphix.masking.initializer.pojo.User;
 
 public class SetupDriver {
 
+    private static final String DATABASE_TYPE_EXTENDED = "EXTENDED";
     Logger logger = LogManager.getLogger(SetupDriver.class);
 
     private ApiCallDriver apiCallDriver;
@@ -500,7 +501,7 @@ public class SetupDriver {
     private void handleDatabaseConnectors(List<DatabaseConnector> databaseConnectors, Integer envId) throws
             IOException, ApiCallException {
         for (DatabaseConnector databaseConnector : databaseConnectors) {
-            if (!jdbcDriversMap.containsKey(databaseConnector.getDriverName())) {
+            if (databaseConnector.getDatabaseType().equals(DATABASE_TYPE_EXTENDED) && !jdbcDriversMap.containsKey(databaseConnector.getDriverName())) {
                 throw new MissingDataException(String.format("JDBC Driver with name %s was not uploaded",
                         databaseConnector.getDriverName()));
             }
