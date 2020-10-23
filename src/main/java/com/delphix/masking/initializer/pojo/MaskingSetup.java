@@ -10,6 +10,7 @@ public class MaskingSetup {
     private String host;
     private String port;
     private String apiPath;
+    private String apiVersion;
     private String username;
     private String password;
     private String authToken;

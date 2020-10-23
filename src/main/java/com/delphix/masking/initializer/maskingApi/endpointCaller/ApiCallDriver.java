@@ -39,23 +39,27 @@ import java.security.NoSuchAlgorithmException;
 public class ApiCallDriver {
 
     private static final String URL = "%s://%s:%s/%s%s";
+    private static final String URL_WITH_VERSION = "%s://%s:%s/%s%s%s";
     private static final String BASE_PATH = "%s/api/";
+    private static final String VERSION = "v%s/";
     private static final String LOGIN_PATH = "login";
     Logger logger = LogManager.getLogger(ApiCallDriver.class);
     private String host;
     private String port;
     private String apiPath;
+    private String apiVersion;
     private String username;
     private String password;
     private String Authorization;
     private boolean replace;
     private boolean sslEnabled;
 
-    public ApiCallDriver(String host, String username, String password, String port, String apiPath, boolean replace, boolean sslEnabled)
+    public ApiCallDriver(String host, String username, String password, String port, String apiPath, String apiVersion, boolean replace, boolean sslEnabled)
             throws ApiCallException {
         this.host = host;
         this.port = port;
         this.apiPath = apiPath;
+        this.apiVersion = apiVersion;
         this.username = username;
         this.password = password;
         this.replace = replace;
@@ -63,10 +67,11 @@ public class ApiCallDriver {
         login();
     }
 
-    public ApiCallDriver(String host, String authToken, String port, String apiPath, boolean replace, boolean sslEnabled) {
+    public ApiCallDriver(String host, String authToken, String port, String apiPath, String apiVersion, boolean replace, boolean sslEnabled) {
         this.host = host;
         this.port = port;
         this.apiPath = apiPath;
+        this.apiVersion = apiVersion;
         this.Authorization = authToken;
         this.replace = replace;
         this.sslEnabled = sslEnabled;
@@ -120,7 +125,8 @@ public class ApiCallDriver {
     }
 
     private String makeGetApiCall(String endpointPath) throws ApiCallException {
-        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = constructUrl(endpointPath);
+
         logger.info(url + " GET");
 
         HttpGet httpGet = new HttpGet(url);
@@ -131,8 +137,8 @@ public class ApiCallDriver {
 
     private String makeMultiPartPostCall(String endpointPath, HttpEntity httpEntity) throws ApiCallException,
             IOException {
+        String url = constructUrl(endpointPath);
 
-        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
         logger.info(url + " POST");
 
         HttpPost httpPost = new HttpPost(url);
@@ -143,7 +149,8 @@ public class ApiCallDriver {
     }
 
     private String makePostCall(String endpointPath, String jsonBody) throws ApiCallException {
-        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = constructUrl(endpointPath);
+
         logger.info(url + " POST");
         logger.debug("Request Body: {}", jsonBody);
 
@@ -170,7 +177,7 @@ public class ApiCallDriver {
     }
 
     private String makePutCall(String endpointPath, String jsonBody) throws ApiCallException {
-        String url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        String url = constructUrl(endpointPath);
 
         logger.info(url + " PUT");
         logger.debug("Request Body: {}", jsonBody);
@@ -246,5 +253,15 @@ public class ApiCallDriver {
 
     private String getProtocol() {
         return sslEnabled ? "https": "http";
+    }
+
+    private String constructUrl(String endpointPath) {
+        String url = "";
+        if(apiVersion != null) {
+            url = String.format(URL_WITH_VERSION, getProtocol(), host, port, String.format(BASE_PATH, apiPath), String.format(VERSION, apiVersion), endpointPath);
+        } else {
+            url = String.format(URL, getProtocol(), host, port, String.format(BASE_PATH, apiPath), endpointPath);
+        }
+        return url;
     }
 }

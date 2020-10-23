@@ -71,6 +71,7 @@ The following flags are available to help run this tool.
  * `-H` specifies the host of the masking engine. Can be `localhost`, `12.23.32.12`, `youCompanyMasking.com`. Can also be specified by environment variable `MASKING_HOST`.
  * `-p` specifies the port that the masking engine is running on. Can also be specified by environment variable `MASKING_PORT`.
  * `-u` specifies the username of an admin user that can be used to login to the masking engine. Can also be specified by environment variable `MASKING_USER`.
+ * `-v` specifies the API version of the masking engine. Can be `5.1.5`.
  * `-P` specifies the password of the admin user. Can also be specified by environment variable `MASKING_PASSWORD`.
  * `-t` specifies an authorization token. This is be specified instead of a username and password
  * `-f` specifies the file or folder to either read from (for restoration) or write to (for backup)

@@ -135,6 +135,9 @@ public class SetupDriver {
             if (applicationFlags.getApiPath() != null) {
                 maskingSetup.setApiPath(applicationFlags.getApiPath());
             }
+            if (applicationFlags.getApiVersion() != null) {
+                maskingSetup.setApiVersion(applicationFlags.getApiVersion());
+            }
 
             if (applicationFlags.getAuthToken() != null) {
                 maskingSetup.setAuthToken(applicationFlags.getAuthToken());
@@ -176,6 +179,7 @@ public class SetupDriver {
                         maskingSetup.getPassword(),
                         maskingSetup.getPort(),
                         maskingSetup.getApiPath(),
+                        maskingSetup.getApiVersion(),
                         replace,
                         applicationFlags.getIsSslEnabled()
                         );
@@ -185,6 +189,7 @@ public class SetupDriver {
                         maskingSetup.getAuthToken(),
                         maskingSetup.getPort(),
                         maskingSetup.getApiPath(),
+                        maskingSetup.getApiVersion(),
                         replace,
                         applicationFlags.getIsSslEnabled());
             }
