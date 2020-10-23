@@ -11,6 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.3.4]
+
+### Fixed
+Add the capability to provide an API Version option for backup and setup. #61
+
 ## [2.3.3]
 
 ### Fixed
