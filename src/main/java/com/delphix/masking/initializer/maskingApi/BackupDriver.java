@@ -134,6 +134,7 @@ public class BackupDriver {
                     applicationFlags.getPassword(),
                     applicationFlags.getPort(),
                     applicationFlags.getApiPath(),
+                    applicationFlags.getApiVersion(),
                     applicationFlags.getReplace(),
                     applicationFlags.getIsSslEnabled());
         } else {
@@ -142,6 +143,7 @@ public class BackupDriver {
                     applicationFlags.getAuthToken(),
                     applicationFlags.getPort(),
                     applicationFlags.getApiPath(),
+                    applicationFlags.getApiVersion(),
                     applicationFlags.getReplace(),
                     applicationFlags.getIsSslEnabled());
         }
@@ -154,6 +156,7 @@ public class BackupDriver {
         maskingSetup.setHost(applicationFlags.getHost());
         maskingSetup.setPort(applicationFlags.getPort());
         maskingSetup.setApiPath(applicationFlags.getApiPath());
+        maskingSetup.setApiVersion(applicationFlags.getApiVersion());
         maskingSetup.setUsername(applicationFlags.getUsername());
         maskingSetup.setPassword(applicationFlags.getPassword());
         maskingSetup.setAuthToken(applicationFlags.getAuthToken());

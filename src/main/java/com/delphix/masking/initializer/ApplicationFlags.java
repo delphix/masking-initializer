@@ -43,6 +43,7 @@ public class ApplicationFlags {
     private static final String AUTHTOKEN_OPTION = "t";
     private static final String EXECUTIONS_OPTION = "x";
     private static final String SSL_OPTION = "S";
+    private static final String API_VERSION = "v";
 
     private static final String MASKING_USER = "MASKING_USER";
     private static final String MASKING_PASSWORD = "MASKING_PASSWORD";
@@ -63,6 +64,8 @@ public class ApplicationFlags {
     String password;
     @Getter
     String apiPath = "masking";
+    @Getter
+    String apiVersion;
     @Getter
     Boolean overwrite;
     @Getter
@@ -89,13 +92,13 @@ public class ApplicationFlags {
     Boolean isSslEnabled;
 
     public ApplicationFlags(String args[]) throws ParseException, InputException {
-
         // Set the command line options
         Options options = new Options();
 
         options.addOption(HOST_OPTION, true, "Host machine to backup/restore");
         options.addOption(PORT_OPTION, true, "Port on host machine masking app is located");
         options.addOption(API_PATH_OPTION, true, "Path in URL, either 'dmsuite' or 'masking'");
+        options.addOption(API_VERSION, true, "Masking API version");
         options.addRequiredOption(FILE_NAME_OPTION, "fileName", true, "File to read or write to");
         options.addOption(USERNAME_OPTION, true, "Masking engine username");
         options.addOption(PASSWORD_OPTION, true, "Masking engine password");
@@ -113,7 +116,6 @@ public class ApplicationFlags {
         options.addOption(AUTHTOKEN_OPTION, true, "Authorization token");
         options.addOption(EXECUTIONS_OPTION, false, "Specifies that execution objects should be backed up");
         options.addOption(SSL_OPTION, false, "Specifies that SSL should be used");
-
 
         // Read in the command line options and parse them
         CommandLineParser commandLineParser = new DefaultParser();
@@ -207,6 +209,9 @@ public class ApplicationFlags {
             sync = commandLine.hasOption(ENGINE_SYNC_OPTION);
             redactUserInfo = commandLine.hasOption(REDACT_USER_INFO);
             execution = commandLine.hasOption(EXECUTIONS_OPTION);
+            if (commandLine.hasOption(API_VERSION)) {
+                apiVersion = commandLine.getOptionValue(API_VERSION);
+            }
 
         } else {
             logger.trace("Parsing flags for setup mode");
@@ -223,7 +228,9 @@ public class ApplicationFlags {
             if (commandLine.hasOption(API_PATH_OPTION)) {
                 apiPath = commandLine.getOptionValue(API_PATH_OPTION);
             }
-
+            if (commandLine.hasOption(API_VERSION)) {
+                apiVersion = commandLine.getOptionValue(API_VERSION);
+            }
         }
 
     }
