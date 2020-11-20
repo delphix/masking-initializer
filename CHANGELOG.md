@@ -11,6 +11,36 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.3.4]
+
+### Fixed
+Add the capability to provide an API Version option for backup and setup. #61
+
+## [2.3.3]
+
+### Fixed
+Fixed otf masking job setup to pick up correct source connector #44
+
+## [2.3.2]
+
+### Fixed
+Fix for issue #53 - Make changes in backup and restore for JDBC Driver's Permission
+
+## [2.3.1]
+
+### Fixed
+Fix for issue #51 - Compare engine version functionality is not working if the version contains additional string information.
+
+## [2.3.0]
+
+### Fixed
+Fix for issue #49 - Make changes in JDBC Drivers POST/PUT API call to use file upload endpoint to restore JDBC driver
+
+## [2.2.0]
+
+### Added
+Fix for issue #47 - Add JDBC Drivers object to backup/restore
+
 ## [2.1.0]
 Add support for syncing mounts
 
