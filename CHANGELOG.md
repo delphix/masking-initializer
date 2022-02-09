@@ -11,6 +11,11 @@ ISSUE #15 base file formatted differently from sub files on scale
 ISSUE #17 Allow tables to be grouped into one file
 ISSUE #20 Remove all Delphix related code names from the codebase
 
+## [2.3.5]
+
+### Fixed
+Update log4j to version 2.17.1. #69
+
 ## [2.3.4]
 
 ### Fixed
